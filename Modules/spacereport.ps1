@@ -43,9 +43,10 @@ foreach ($exserver in $exservers)
  
 $dcsrvcount = 1
 
-if ($exserver.name -notmatch $domaincontroller.name) {
+
 foreach ($domaincontroller in $domaincontrollers)
  {
+	 if ($exserver.name -eq $domaincontroller.name) { Continue }
   $dcvolcount = 1
   $computername = $domaincontroller.name
   $cells=@("$l_space_drive","$l_space_name","$l_space_size","$l_space_free")
@@ -80,7 +81,6 @@ foreach ($domaincontroller in $domaincontrollers)
   
   $dcsrvcount = $dcsrvcount + 1  
  }
-}
 
 $spacereport | set-content "$tmpdir\spacereport.html"
 $spacereport | add-content "$tmpdir\report.html"

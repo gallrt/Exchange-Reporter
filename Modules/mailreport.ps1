@@ -59,7 +59,7 @@ new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_count" $totalmai
 $totalmail = @{$l_mail_send=$totalsendvol}
 $totalmail +=@{$l_mail_received=$totalreceivedvol}
 
-new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_size" $totalmail "$tmpdir\totalmailvol.png"
+new-cylinderchart 500 400 "$l_mail_overallvolume" Mails "$l_mail_size" $totalmail "$tmpdir\totalmailvol.png"
 
 $cells=@("$totalsendcount","$totalreceivedcount","$totalsendvol","$totalreceivedvol")
 $mailreport += New-HTMLTableLine $cells
@@ -148,7 +148,7 @@ $total += new-object PSObject -property @{Name="$name";Volume=$volume}
 #days
 
 $cells=@("$l_mail_date","$l_mail_sendcount","$l_mail_reccount","$l_mail_volsend","$l_mail_volrec")
-$mailreport += Generate-HTMLTable "$l_Mail_overviewperday" $cells
+$mailreport += Generate-HTMLTable "$l_mail_overviewperday" $cells
 
 $daycounter = 1
 do
@@ -192,7 +192,7 @@ $mailreport += End-HTMLTable
 $mailreport += Include-HTMLInlinePictures "$tmpdir\dailymail*.png"
 
 $sendstat = $SendMails | select sender,totalbytes
-$receivedstat = $receivedMails | select sender,totalbytes
+$receivedstat = $receivedMails | select totalbytes,Recipients
 
 $sendmails = $sendmails.sender
 $ReceivedMails = $ReceivedMails.Recipients
@@ -254,11 +254,11 @@ $mailreport += End-HTMLTable
 $cells=@("$l_mail_recipient","$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_recipient ($l_mail_size)" $cells
 
-$receivedstatgroup = $receivedstat | group sender
+$receivedstatgroup = $receivedstat | group Recipients
 $total  = @()
 foreach ($group in $receivedstatgroup)
 	{
-		$name = ($group.Group | select -first 1).sender
+		$name = ($group.Group | select -first 1).Recipients
 		$volume = ($group.Group | measure totalbytes -Sum).Sum
 		$total += new-object PSObject -property @{Name="$name";Volume=$volume}
 	}

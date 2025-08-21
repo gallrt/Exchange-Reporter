@@ -20,7 +20,7 @@ Param(
 
 $reporterversion = "3.13"
 
-clear-host
+# clear-host
 if ($ExchangeVersion)
 	{
 		$EMSVersion = $ExchangeVersion
@@ -342,10 +342,11 @@ try
 		
 		$exservers = get-exchangeserver -ea 0 | where {$_.admindisplayversion.major -ge 14}
         $exdomains = $exservers | select domain -Unique
+		$domaincontrollers = @()			 
         foreach ($exdomain in $exdomains)
             {
                 $domainname = $exdomain.domain
-                $domaincontrollers = Get-DomainController -domain $domainname -ea 0
+                $domaincontrollers += Get-DomainController -domain $domainname -ea 0
             }
 		$orgname = (Get-OrganizationConfig).Name
 		#$emsversion = Get-ExchangeVersionByRegistry
