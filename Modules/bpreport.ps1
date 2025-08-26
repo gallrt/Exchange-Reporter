@@ -1,6 +1,6 @@
 $bpreport = Generate-ReportHeader "bpreport.png" "$l_bp_header "
 
-# �bersicht Fehler
+# Übersicht Fehler
 $cells = @("$l_bp_srvname", "$l_bp_svcname", "$l_bp_errorcount")
 $bpreport += Generate-HTMLTable "$l_bp_t1header" $cells
 
@@ -32,7 +32,7 @@ foreach ($exserver in $exservers) {
 
 $bpreport += End-HTMLTable
 
-# �bersicht Warnungen
+# Übersicht Warnungen
 $cells = @("$l_bp_srvname", "$l_bp_svcname", "$l_bp_warncount")
 $bpreport += Generate-HTMLTable "$l_bp_t2header" $cells
 
@@ -61,7 +61,7 @@ foreach ($exserver in $exservers) {
 
 $bpreport += End-HTMLTable
 
-#Details
+# Details
 $cells = @("$l_bp_srvname", "$l_bp_discription")
 $bpreport += Generate-HTMLTable "$l_bp_t3header" $cells
 

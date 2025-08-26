@@ -1,5 +1,9 @@
 $redirectreport = Generate-ReportHeader "redirectreport.png" "$l_redir_header "
 
+
+#--------------------------------------------------------------------------------------
+# Mailboxes with Forwards or Redirects (Outlook Rule)
+
 $cells = @("$l_redir_mbx", "$l_redir_rulename", "$l_redir_type", "$l_redir_targetaddr", "$l_redir_active")
 $redirectreport += Generate-HTMLTable "$l_redir_header2" $cells
 
@@ -27,6 +31,10 @@ foreach ($rule in $rules) {
 }
 
 $redirectreport += End-HTMLTable
+
+
+#--------------------------------------------------------------------------------------
+# Mailboxes with Forwards or Redirects (Exchange Rule)
 
 $cells = @("$l_redir_mbx", "$l_redir_forwardto", "$l_redir_targetaddr")
 $redirectreport += Generate-HTMLTable "$l_redir_header3" $cells

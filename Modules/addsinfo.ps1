@@ -118,13 +118,13 @@ foreach ($domaincontroller in $domaincontrollers) {
 
 		if ($eventgroups) {
 			foreach ($eventgroup in $eventgroups) {
-				$event = $eventgroup.Group | Select-Object -First 1
+				$eventOne = $eventgroup.Group | Select-Object -First 1
 				$eventcount = $eventgroup.Count
-				$eventsource = $event.ProviderName
-				$eventid = $event.Id
-				$eventtime = $event.TimeCreated
+				$eventsource = $eventOne.ProviderName
+				$eventid = $eventOne.Id
+				$eventtime = $eventOne.TimeCreated
 				$eventtime = $eventtime | Get-Date -Format "dd.MM.yy hh:mm:ss"
-				$eventmessage = $event.Message
+				$eventmessage = $eventOne.Message
 				$eventmeslength = $eventmessage.Length
 				if ($eventmeslength -gt 200) {
 					$eventcontent = $eventmessage.Substring(0, 200)

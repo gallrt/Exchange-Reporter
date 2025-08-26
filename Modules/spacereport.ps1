@@ -1,5 +1,9 @@
 $spacereport = Generate-ReportHeader "spacereport.png" "$l_space_header"
 
+
+#--------------------------------------------------------------------------------------
+# Exchange Server
+
 $exsrvcount = 1
 foreach ($exserver in $exservers) {
 	$exvolcount = 1
@@ -36,8 +40,8 @@ foreach ($exserver in $exservers) {
 }
 
 
-
-#Domain Controller
+#--------------------------------------------------------------------------------------
+# Domain Controller
 
 $dcsrvcount = 1
 foreach ($domaincontroller in $domaincontrollers) {

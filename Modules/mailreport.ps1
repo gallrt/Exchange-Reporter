@@ -35,7 +35,9 @@ if ($mailexclude) {
 	}
 }
 
-#Total
+
+#--------------------------------------------------------------------------------------
+# Total
 
 $totalsendmail = $sendmails | Measure-Object TotalBytes -Sum
 $totalreceivedmail = $receivedmails | Measure-Object TotalBytes -Sum
@@ -65,7 +67,10 @@ $mailreport += New-HTMLTableLine $cells
 $mailreport += End-HTMLTable
 $mailreport += Include-HTMLInlinePictures "$tmpdir\totalmail*.png"
 
-#Je Server
+
+#--------------------------------------------------------------------------------------
+# Je Server
+
 if ($transportservers.count -gt 1) {
 	$cells = @("$l_mail_servername", "$l_mail_overallcount", "$l_mail_overallvolume", "$l_mail_sendcount", "$l_mail_reccount", "$l_mail_volsend", "$l_mail_volrec")
 	$mailreport += Generate-HTMLTable "$l_mail_header2 $ReportInterval $l_mail_days $l_mail_perserver" $cells
@@ -137,7 +142,8 @@ if ($transportservers.count -gt 1) {
 $total += New-Object PSObject -Property @{Name = "$name"; Volume = $volume }
 
 
-#days
+#--------------------------------------------------------------------------------------
+# Days
 
 $cells = @("$l_mail_date", "$l_mail_sendcount", "$l_mail_reccount", "$l_mail_volsend", "$l_mail_volrec")
 $mailreport += Generate-HTMLTable "$l_mail_overviewperday" $cells
@@ -187,8 +193,8 @@ $receivedstat = $receivedMails | Select-Object TotalBytes, Recipients
 $sendmails = $sendmails.Sender
 $ReceivedMails = $ReceivedMails.Recipients
 
-$topsenders = $sendmails | Group-Object �noelement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
-$toprecipients = $ReceivedMails | Group-Object �noelement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
+$topsenders = $sendmails | Group-Object -NoElement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
+$toprecipients = $ReceivedMails | Group-Object -NoElement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
 
 $cells = @("$l_mail_sender", "$l_mail_count")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_sender ($l_mail_count)" $cells
@@ -212,8 +218,10 @@ foreach ($toprecipient in $toprecipients) {
 }
 $mailreport += End-HTMLTable
 
-#--------------
-#Sender
+
+#--------------------------------------------------------------------------------------
+# Sender
+
 $cells = @("$l_mail_sender", "$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_sender ($l_mail_size)" $cells
 
@@ -236,7 +244,10 @@ foreach ($topsender in $toptensendersvol) {
 }
 $mailreport += End-HTMLTable
 
-#Recipient
+
+#--------------------------------------------------------------------------------------
+# Recipients
+
 $cells = @("$l_mail_recipient", "$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_recipient ($l_mail_size)" $cells
 
@@ -259,9 +270,10 @@ foreach ($toprecipient in $toptenrecipientsvol) {
 }
 $mailreport += End-HTMLTable
 
-#---------------------------
 
-#Durchschnitt
+#--------------------------------------------------------------------------------------
+# Durchschnitt
+
 try {
 	$usercount = (Get-Mailbox -ResultSize Unlimited | Select-Object Alias).Count
 
