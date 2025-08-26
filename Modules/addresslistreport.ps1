@@ -5,19 +5,19 @@ $addresslistreport = Generate-ReportHeader "addresslistreport.png" "$l_addressli
 $cells = @("$l_addresslist_name", "$l_addresslist_hasmember", "$l_addresslist_membercount")
 $addresslistreport += Generate-HTMLTable "$l_addresslist_t1header" $cells
 
-$addresslists = Get-Addresslist | sort name
+$addresslists = Get-Addresslist | Sort-Object Name
 foreach ($addresslist in $addresslists) {
-	$addresslistname = $addresslist.name
-	$addresslistmembers = Get-Recipient -RecipientPreviewFilter $addresslist.RecipientFilter -OrganizationalUnit $addresslist.RecipientContainer -resultsize unlimited | sort name
+	$addresslistname = $addresslist.Name
+	$addresslistmembers = Get-Recipient -RecipientPreviewFilter $addresslist.RecipientFilter -OrganizationalUnit $addresslist.RecipientContainer -ResultSize Unlimited | Sort-Object Name
 	if ($addresslistmembers) {
 		$addresslisthasmember = "$l_addresslist_memberyes"
-		$addresslistmemcount = $addresslistmembers.count
+		$addresslistmemcount = $addresslistmembers.Count
 
 		$memcells = @("Name", "Typ")
 		$addresslistmemberreport += Generate-HTMLTable "$l_addresslist_t2header $addresslistname" $memcells
 
 		foreach ($addresslistmember in $addresslistmembers) {
-			$memname = $addresslistmember.name
+			$memname = $addresslistmember.Name
 			$memtyp = $addresslistmember.RecipientType
 
 			$memcells = @("$memname", "$memtyp")
@@ -36,5 +36,5 @@ $addresslistreport += End-HTMLTable
 
 $addresslistreport += $addresslistmemberreport
 
-$addresslistreport | set-content "$tmpdir\addresslistreport.html"
-$addresslistreport | add-content "$tmpdir\report.html"
+$addresslistreport | Set-Content "$tmpdir\addresslistreport.html"
+$addresslistreport | Add-Content "$tmpdir\report.html"

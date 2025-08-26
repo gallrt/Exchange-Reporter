@@ -4,14 +4,14 @@ if ($emsversion -match "2010") {
 	$cells = @("$l_pf_db", "$l_pf_server", "$l_pf_size", "$l_pf_lastbackup")
 	$pfreport += Generate-HTMLTable "$l_pf_header2" $cells
 
-	$pfdbs = get-PublicFolderDatabase -Status
+	$pfdbs = Get-PublicFolderDatabase -Status
 	foreach ($pfdb in $pfdbs) {
-		$pfdbname = $pfdb.name
-		$pfdbserver = $pfdb.server
-		$pfdbsize = $pfdb.databasesize
+		$pfdbname = $pfdb.Name
+		$pfdbserver = $pfdb.Server
+		$pfdbsize = $pfdb.DatabaseSize
 		$pflastbackup = $pfdb.LastFullBackup
 		if ($pflastbackup) {
-			$pflastbackup = get-date $pflastbackup -UFormat "%d.%m.%Y %R"
+			$pflastbackup = Get-Date $pflastbackup -UFormat "%d.%m.%Y %R"
 		} else {
 			$pflastbackup = "Nie"
 		}
@@ -24,7 +24,7 @@ if ($emsversion -match "2010") {
 	$cells = @("$l_pf_name", "$l_pf_db", "$l_pf_size", "$l_pf_elementcount")
 	$pfreport += Generate-HTMLTable "$l_pf_header3" $cells
 
-	$pfs = Get-PublicFolderStatistics -resultsize unlimited -ea 0 | sort Totalitemsize -Descending | select -First 200
+	$pfs = Get-PublicFolderStatistics -ResultSize Unlimited -ea 0 | Sort-Object TotalItemSize -Descending | Select-Object -First 200
 	foreach ($pf in $pfs) {
 		$pfname = $pf.AdminDisplayName
 		$pfdb = $pf.DatabaseName
@@ -33,7 +33,6 @@ if ($emsversion -match "2010") {
 
 		$cells = @("$pfname", "$pfdb", "$pfsize", "$pfitemcount")
 		$pfreport += New-HTMLTableLine $cells
-
 	}
 	$pfreport += End-HTMLTable
 }
@@ -42,12 +41,12 @@ if ($emsversion -match "2013" -or $emsversion -match "2016" -or $emsversion -mat
 	$cells = @("$l_pf_mbx", "$l_pf_server", "$l_pf_size", "$l_pf_db")
 	$pfreport += Generate-HTMLTable "$l_pf_header4" $cells
 
-	$pfmbxs = get-mailbox -PublicFolder
+	$pfmbxs = Get-Mailbox -PublicFolder
 	foreach ($pfmbx in $pfmbxs) {
-		$pfmbxname = $pfmbx.name
-		$pfmbxserver = $pfmbx.servername
-		$pfmbxsize = (Get-MailboxStatistics $pfmbx).totalitemsize.value
-		$pfmbxdatabase = $pfmbx.database.name
+		$pfmbxname = $pfmbx.Name
+		$pfmbxserver = $pfmbx.ServerName
+		$pfmbxsize = (Get-MailboxStatistics $pfmbx).TotalItemSize.value
+		$pfmbxdatabase = $pfmbx.Database.Name
 		$cells = @("$pfmbxname", "$pfmbxserver", "$pfmbxsize", "$pfmbxdatabase")
 		$pfreport += New-HTMLTableLine $cells
 	}
@@ -56,20 +55,19 @@ if ($emsversion -match "2013" -or $emsversion -match "2016" -or $emsversion -mat
 	$cells = @("$l_pf_name", "$l_pf_db", "$l_pf_size", "$l_pf_elementcount")
 	$pfreport += Generate-HTMLTable "$l_pf_header3" $cells
 
-	$pfs = Get-PublicFolderStatistics -resultsize unlimited -ea 0 | sort Totalitemsize -Descending | select -First 200
+	$pfs = Get-PublicFolderStatistics -ResultSize Unlimited -ea 0 | Sort-Object TotalItemSize -Descending | Select-Object -First 200
 	foreach ($pf in $pfs) {
-		$pfname = $pf.name
+		$pfname = $pf.Name
 		$pfid = $pf.EntryId
-		$pfdb = (get-publicfolder $pfid).contentmailboxname
+		$pfdb = (Get-PublicFolder $pfid).ContentMailboxName
 		$pfsize = $pf.TotalItemSize
 		$pfitemcount = $pf.ItemCount
 
 		$cells = @("$pfname", "$pfdb", "$pfsize", "$pfitemcount")
 		$pfreport += New-HTMLTableLine $cells
-
 	}
 	$pfreport += End-HTMLTable
 }
 
-$pfreport | set-content "$tmpdir\pfreport.html"
-$pfreport | add-content "$tmpdir\report.html"
+$pfreport | Set-Content "$tmpdir\pfreport.html"
+$pfreport | Add-Content "$tmpdir\report.html"

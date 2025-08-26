@@ -9,7 +9,7 @@
 #
 #--------------------------------------------------------------------------------------
 
-Param(
+param(
 	[Parameter(Mandatory = $false)][string]$Installpath = $PSScriptRoot,
 	[Parameter(Mandatory = $false)][string]$ExchangeVersion,
 	[Parameter(Mandatory = $false)][string]$ConfigFile = "settings.ini"
@@ -28,9 +28,9 @@ $otitle = $host.ui.RawUI.WindowTitle
 $host.ui.RawUI.WindowTitle = "Exchange Reporter $reporterversion - www.FrankysWeb.de"
 
 
-write-host "
+Write-Host "
 ------------------------------------------------------------------------------------------"
-write-host "
+Write-Host "
    _____         _                             ______                      _
   |  ___|       | |                            | ___ \                    | |
   | |____  _____| |__   __ _ _ __   __ _  ___  | |_/ /___ _ __   ___  _ __| |_ ___ _ __
@@ -39,8 +39,8 @@ write-host "
   \____/_/\_\___|_| |_|\__,_|_| |_|\__, |\___| \_| \_\___| .__/ \___/|_|  \__ \___|_|
                                     __/ |                | |
                                    |___/                 |_|
-" -foregroundcolor cyan
-write-host "
+" -ForegroundColor cyan
+Write-Host "
 			for Exchange Server 2010 / 2013 / 2016 / 2019
 
                                      www.FrankysWeb.de
@@ -52,57 +52,57 @@ write-host "
 #Pr�fen ob PowerShell 4.0 vorhanden
 #--------------------------------------------------------------------------------------
 
-write-host " Checking Powershell Version:" -nonewline
+Write-Host " Checking Powershell Version:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
-$psversion = (get-host).version.major
+$psversion = (Get-Host).version.major
 
 if ($psversion -ge "4") {
 
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "OK (PowerShell $psversion)" -foregroundcolor green
+	Write-Host "OK (PowerShell $psversion)" -ForegroundColor green
 } else {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 
 #Laden der Funktionen aus "Include-Functions.ps1"
 #--------------------------------------------------------------------------------------
 
-write-host " Loading functions from Include-Functions.ps1:" -nonewline
+Write-Host " Loading functions from Include-Functions.ps1:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
-$functionfile = test-path "$installpath\Includes\Include-Functions.ps1"
+$functionfile = Test-Path "$installpath\Includes\Include-Functions.ps1"
 if ($functionfile) {
 	. "$installpath\Includes\Include-Functions.ps1"
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Done" -foregroundcolor green
+	Write-Host "Done" -ForegroundColor green
 } else {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error (not found)" -foregroundcolor red
+	Write-Host "Error (not found)" -ForegroundColor red
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 
 # settings.ini einlesen
 #--------------------------------------------------------------------------------------
 
 try {
-	write-host " Loading settings from $ConfigFile`:" -nonewline
+	Write-Host " Loading settings from $ConfigFile`:" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
 	$globalsettingsfile = "$installpath\$ConfigFile"
 	$inifile = get-inicontent "$globalsettingsfile"
-} Catch {
+} catch {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 $host.UI.RawUI.CursorPosition = $origpos
-write-host "Done" -foregroundcolor green
+Write-Host "Done" -ForegroundColor green
 
 # Settings verarbeiten
 #--------------------------------------------------------------------------------------
@@ -117,10 +117,10 @@ $excludehash = $inifile["ExcludeList"]
 $languagesettings = convert-hashtoobject $languagehash
 $excludelist = convert-hashtoobject $excludehash
 $activemodules = convert-hashtoobject $activemoduleshash
-$excludelist = $excludelist | where { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" }
-$activemodules = $activemodules | where { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" } | sort setting
+$excludelist = $excludelist | Where-Object { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" }
+$activemodules = $activemodules | Where-Object { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" } | Sort-Object setting
 $3rdPartyactivemodules = convert-hashtoobject $3rdPartyactivemoduleshash
-$3rdPartyactivemodules = $3rdPartyactivemodules | where { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" } | sort setting
+$3rdPartyactivemodules = $3rdPartyactivemodules | Where-Object { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" } | Sort-Object setting
 
 #Einstellungen:
 #--------------------------------------------------------------------------------------
@@ -150,53 +150,53 @@ $language = ($languagesettings | Where-Object { $_.Setting -eq "Language" }).Val
 # Errorlog schreiben
 #--------------------------------------------------------------------------------------
 if ($errorlog -match "yes") {
-	$logtime = get-date
-	"-Start-- $logtime ----------------------------------------------------------------------------------" | add-content "$installpath\ErrorLog.txt"
+	$logtime = Get-Date
+	"-Start-- $logtime ----------------------------------------------------------------------------------" | Add-Content "$installpath\ErrorLog.txt"
 }
 
 # Sprache anzeigen
 #--------------------------------------------------------------------------------------
 try {
-	write-host " Setting Report Language:" -nonewline
+	Write-Host " Setting Report Language:" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
 
-} Catch {
+} catch {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	if ($errorlog -match "yes") {
 
-		$error[0] | add-content "$installpath\ErrorLog.txt"
+		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 $host.UI.RawUI.CursorPosition = $origpos
-write-host "$language" -foregroundcolor green
+Write-Host "$language" -ForegroundColor green
 
 #Lade Exchange Snapin
 #--------------------------------------------------------------------------------------
-write-host " Loading Exchange Management SnapIn:" -nonewline
+Write-Host " Loading Exchange Management SnapIn:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
 try {
 	. "$installpath\Includes\Include-ExchangeSnapins.ps1"
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Done" -foregroundcolor green
-} Catch {
+	Write-Host "Done" -ForegroundColor green
+} catch {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	if ($errorlog -match "yes") {
 
-		$error[0] | add-content "$installpath\ErrorLog.txt"
+		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 
 # Exchange Version ermitteln
 #--------------------------------------------------------------------------------------
-write-host " Checking Exchange Management Shell:" -nonewline
+Write-Host " Checking Exchange Management Shell:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
 if (!$emsversion) {
@@ -204,84 +204,84 @@ if (!$emsversion) {
 }
 if ($emsversion -match "2010") {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "OK (Exchange 2010)" -foregroundcolor green
+	Write-Host "OK (Exchange 2010)" -ForegroundColor green
 }
 if ($emsversion -match "2013") {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "OK (Exchange 2013)" -foregroundcolor green
+	Write-Host "OK (Exchange 2013)" -ForegroundColor green
 }
 if ($emsversion -match "2016") {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "OK (Exchange 2016)" -foregroundcolor green
+	Write-Host "OK (Exchange 2016)" -ForegroundColor green
 }
 if ($emsversion -match "2019") {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "OK (Exchange 2019)" -foregroundcolor green
+	Write-Host "OK (Exchange 2019)" -ForegroundColor green
 }
 if (!$emsversion) {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error (EMS not found)" -foregroundcolor red
+	Write-Host "Error (EMS not found)" -ForegroundColor red
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 if ($emsversion -notmatch "2010" -and $emsversion -notmatch "2013" -and $emsversion -notmatch "2016" -and $emsversion -notmatch "2019") {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error (Wrong EMS Version)" -foregroundcolor red
+	Write-Host "Error (Wrong EMS Version)" -ForegroundColor red
 	if ($errorlog -match "yes") {
 
-		"Wrong EMS Version" | add-content "$installpath\ErrorLog.txt"
+		"Wrong EMS Version" | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 
 #Tempor�res Verzeichnis erstellen
 #--------------------------------------------------------------------------------------
 
-write-host " Generating temp. Directory:" -nonewline
+Write-Host " Generating temp. Directory:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
-if (test-path "$installpath\TEMP") { Remove-Item "$installpath\TEMP" -Force -Recurse }
+if (Test-Path "$installpath\TEMP") { Remove-Item "$installpath\TEMP" -Force -Recurse }
 $tmpdir = New-Item "$installpath\TEMP" -Type directory -ea 0
 $tmpdir = $tmpdir.fullname
 if ($tmpdir) {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Done" -foregroundcolor green
+	Write-Host "Done" -ForegroundColor green
 } else {
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	if ($errorlog -match "yes") {
 
-		$error[0] | add-content "$installpath\ErrorLog.txt"
+		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 
 #Lade Assembly
 #--------------------------------------------------------------------------------------
-write-host " Loading .NET Assemblies:" -nonewline
+Write-Host " Loading .NET Assemblies:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
 try {
 	[void][Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 	[void][Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms.DataVisualization")
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Done" -foregroundcolor green
-} Catch {
+	Write-Host "Done" -ForegroundColor green
+} catch {
 	if ($errorlog -match "yes") {
 
-		$error[0] | add-content "$installpath\ErrorLog.txt"
+		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	exit 0
-	write-host ""
+	Write-Host ""
 }
 
 #H�ufig genutzte Variablen
 #--------------------------------------------------------------------------------------
-write-host " Loading global Variables:" -nonewline
+Write-Host " Loading global Variables:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
 try {
@@ -299,14 +299,14 @@ try {
 		$casservers = Get-ClientAccessService -ea 0
 	}
 
-	$exservers = get-exchangeserver -ea 0 | where { $_.admindisplayversion.major -ge 14 }
-	$exdomains = $exservers | select domain -Unique
-	$domaincontrollers = @()
-	foreach ($exdomain in $exdomains) {
-		$domainname = $exdomain.domain
-		$domaincontrollers += Get-DomainController -domain $domainname -ea 0
+	$ExServers = Get-ExchangeServer -ea 0 | Where-Object { $_.admindisplayversion.major -ge 14 }
+	$ExDomains = $ExServers | Select-Object Domain -Unique
+	$DomainControllers = @()
+	foreach ($ExDomain in $ExDomains) {
+		$DomainName = $ExDomain.domain
+		$DomainControllers += Get-DomainController -DomainName $DomainName -ea 0
 	}
-	$orgname = (Get-OrganizationConfig).Name
+	$OrgName = (Get-OrganizationConfig).Name
 	#$emsversion = Get-ExchangeVersionByRegistry
 	$files = @()
 	$host.UI.RawUI.CursorPosition = $origpos
@@ -314,68 +314,68 @@ try {
 	$languagefilepath = "$installpath" + "\Language\" + "$language"
 	$Start = (Get-Date -Hour 00 -Minute 00 -Second 00).AddDays(-$ReportInterval)
 	$End = (Get-Date -Hour 00 -Minute 00 -Second 00)
-	$today = get-date | convert-date
-	write-host "Done" -foregroundcolor green
-	$entireforrest = Set-ADServerSettings -ViewEntireForest $True
-} Catch {
+	$Today = Get-Date | convert-date
+	Write-Host "Done" -ForegroundColor green
+	$EntireForrest = Set-ADServerSettings -ViewEntireForest $True
+} catch {
 	if ($errorlog -match "yes") {
-		$error[0] | add-content "$installpath\ErrorLog.txt"
+		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
+	Write-Host "Error" -ForegroundColor red
 	exit 0
-	write-host ""
+	Write-Host ""
 }
-write-host ""
-write-host "------------------------------------------------------------------------------------------"
-write-host ""
+Write-Host ""
+Write-Host "------------------------------------------------------------------------------------------"
+Write-Host ""
 
 #MODULE
 #--------------------------------------------------------------------------------------
 
 #HTML Datei vorbereiten
-$htmlheader = new-htmlheader ExchangeReporter
-$htmlheader | set-content "$tmpdir\report.html"
+$htmlheader = New-HTMLHeader ExchangeReporter
+$htmlheader | Set-Content "$tmpdir\report.html"
 
 foreach ($activemodule in $activemodules) {
 	$module = $activemodule.Value
-	write-host " Working on Module '$module':" -nonewline
+	Write-Host " Working on Module '$module':" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
 	try {
-		. "$languagefilepath\$module"
-		. "$modulpath\$module"
+		. "$LanguageFilepath\$module"
+		. "$ModulPath\$module"
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Done" -foregroundcolor green
-	} Catch {
+		Write-Host "Done" -ForegroundColor green
+	} catch {
 		if ($errorlog -match "yes") {
-			$module | add-content "$installpath\ErrorLog.txt"
-			$error[0] | add-content "$installpath\ErrorLog.txt"
+			$module | Add-Content "$installpath\ErrorLog.txt"
+			$error[0] | Add-Content "$installpath\ErrorLog.txt"
 		}
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Error" -foregroundcolor red
-		write-host ""
+		Write-Host "Error" -ForegroundColor red
+		Write-Host ""
 	}
 
 }
 
 foreach ($3rdPartyactivemodule in $3rdPartyactivemodules) {
 	$module = $3rdPartyactivemodule.Value
-	write-host " Working on 3rd Party Module '$module':" -nonewline
+	Write-Host " Working on 3rd Party Module '$module':" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
 	try {
 		. "$modulpath\3rdParty\$module"
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Done" -foregroundcolor green
-	} Catch {
+		Write-Host "Done" -ForegroundColor green
+	} catch {
 		if ($errorlog -match "yes") {
-			$module | add-content "$installpath\ErrorLog.txt"
-			$error[0] | add-content "$installpath\ErrorLog.txt"
+			$module | Add-Content "$installpath\ErrorLog.txt"
+			$error[0] | Add-Content "$installpath\ErrorLog.txt"
 		}
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Error" -foregroundcolor red
-		write-host ""
+		Write-Host "Error" -ForegroundColor red
+		Write-Host ""
 	}
 
 }
@@ -383,92 +383,92 @@ foreach ($3rdPartyactivemodule in $3rdPartyactivemodules) {
 # Report vorbereiten
 #--------------------------------------------------------------------------------------
 
-Generate-ReportFooter | add-content "$tmpdir\report.html"
-$mailbody = get-content "$tmpdir\report.html" | out-string
+Generate-ReportFooter | Add-Content "$tmpdir\report.html"
+$mailbody = Get-Content "$tmpdir\report.html" | Out-String
 
 foreach ($activemodule in $activemodules) {
 	$module = $activemodule.Value
 	$pngfile = $module.replace(".ps1", ".png")
-	$files += Get-ChildItem "$Installpath\Images\$pngfile" -Recurse | Where { -NOT $_.PSIsContainer } | foreach { $_.fullname }
+	$files += Get-ChildItem "$Installpath\Images\$pngfile" -Recurse | Where-Object { -not $_.PSIsContainer } | ForEach-Object { $_.fullname }
 }
 
 foreach ($3rdPartyactivemodule in $3rdPartyactivemodules) {
 	$module = $3rdPartyactivemodule.Value
 	$pngfile = $module.replace(".ps1", ".png")
-	$files += Get-ChildItem "$Installpath\Images\$pngfile" -Recurse | Where { -NOT $_.PSIsContainer } | foreach { $_.fullname }
+	$files += Get-ChildItem "$Installpath\Images\$pngfile" -Recurse | Where-Object { -not $_.PSIsContainer } | ForEach-Object { $_.fullname }
 }
 
-$files += Get-ChildItem "$Installpath\Images\reportheader.png" | Where { -NOT $_.PSIsContainer } | foreach { $_.fullname }
-$files += Get-ChildItem "$Installpath\TEMP\*.png" | Where { -NOT $_.PSIsContainer } | foreach { $_.fullname }
+$files += Get-ChildItem "$Installpath\Images\reportheader.png" | Where-Object { -not $_.PSIsContainer } | ForEach-Object { $_.fullname }
+$files += Get-ChildItem "$Installpath\TEMP\*.png" | Where-Object { -not $_.PSIsContainer } | ForEach-Object { $_.fullname }
 
 # PDF File erzeugen
 #--------------------------------------------------------------------------------------
 
 if ($AddPDFFileToMail -match "yes") {
-	write-host " Saving PDF Report:" -nonewline
+	Write-Host " Saving PDF Report:" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
-	if (test-path "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe") {
+	if (Test-Path "C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe") {
 		try {
 			$pdfreport = $mailbody.replace("cid:", "")
-			$pdfreport | set-content "$installpath\TEMP\PDFReport.htm"
+			$pdfreport | Set-Content "$installpath\TEMP\PDFReport.htm"
 			$pdfpath = "$installpath\TEMP"
 			$pdffile = "$installpath\TEMP\Report.pdf"
 			foreach ($file in $files) {
-				copy-item $file -Destination $pdfpath -force -ea 0
+				Copy-Item $file -Destination $pdfpath -Force -ea 0
 			}
-			$pdf = &"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe" --quiet --enable-local-file-access "$installpath\TEMP\PDFReport.htm" "$installpath\TEMP\Report.pdf" | out-null
+			$pdf = &"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe" --quiet --enable-local-file-access "$installpath\TEMP\PDFReport.htm" "$installpath\TEMP\Report.pdf" | Out-Null
 			$files += "$installpath\TEMP\Report.pdf"
 			$host.UI.RawUI.CursorPosition = $origpos
-			write-host "Done" -foregroundcolor green
-		} Catch {
+			Write-Host "Done" -ForegroundColor green
+		} catch {
 			if ($errorlog -match "yes") {
-				$error[0] | add-content "$installpath\ErrorLog.txt"
+				$error[0] | Add-Content "$installpath\ErrorLog.txt"
 			}
 			$host.UI.RawUI.CursorPosition = $origpos
-			write-host "Error" -foregroundcolor red
-			write-host ""
+			Write-Host "Error" -ForegroundColor red
+			Write-Host ""
 		}
 	} else {
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Error (WKHTML not found)" -foregroundcolor red
-		write-host ""
+		Write-Host "Error (WKHTML not found)" -ForegroundColor red
+		Write-Host ""
 	}
 }
 
 # Report per Mail verschicken
 #--------------------------------------------------------------------------------------
-write-host ""
-write-host " Sending Report:" -nonewline
+Write-Host ""
+Write-Host " Sending Report:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
 try {
 	if ($SMTPAuth -match "yes") {
-		send-mailmessage -encoding UTF8 -from "Exchange Reporter - www.FrankysWeb.de <$sender>" -to "$Recipient"  -subject "$subject" -smtpserver $mailserver -BodyAsHtml -Body $mailbody -Attachments $files -Credential $smtpcreds
+		Send-MailMessage -Encoding UTF8 -From "Exchange Reporter - www.FrankysWeb.de <$sender>" -To "$Recipient"  -Subject "$subject" -SmtpServer $mailserver -BodyAsHtml -Body $mailbody -Attachments $files -Credential $smtpcreds
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Done" -foregroundcolor green
+		Write-Host "Done" -ForegroundColor green
 	} else {
-		send-mailmessage -encoding UTF8 -from "Exchange Reporter - www.FrankysWeb.de <$sender>" -to $Recipient  -subject "$subject" -smtpserver $mailserver -BodyAsHtml -Body $mailbody -Attachments $files
+		Send-MailMessage -Encoding UTF8 -From "Exchange Reporter - www.FrankysWeb.de <$sender>" -To $Recipient  -Subject "$subject" -SmtpServer $mailserver -BodyAsHtml -Body $mailbody -Attachments $files
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Done" -foregroundcolor green
-		write-host ""
+		Write-Host "Done" -ForegroundColor green
+		Write-Host ""
 	}
-} Catch {
+} catch {
 	if ($errorlog -match "yes") {
-		$error[0] | add-content "$installpath\ErrorLog.txt"
+		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	$host.UI.RawUI.CursorPosition = $origpos
-	write-host "Error" -foregroundcolor red
-	write-host ""
+	Write-Host "Error" -ForegroundColor red
+	Write-Host ""
 }
 
 # Report per FTP Hochladen
 #--------------------------------------------------------------------------------------
 
 if ($FTPUpload -match "yes") {
-	write-host ""
-	write-host "------------------------------------------------------------------------------------------"
-	write-host " Uploading files to FTP Server:" -nonewline
+	Write-Host ""
+	Write-Host "------------------------------------------------------------------------------------------"
+	Write-Host " Uploading files to FTP Server:" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
 	try {
@@ -480,44 +480,44 @@ if ($FTPUpload -match "yes") {
 		$webclient = New-Object System.Net.WebClient
 		$webclient.Credentials = New-Object System.Net.NetworkCredential($FTPUser, $FTPPass)
 
-		foreach ($item in (dir $FTPLocalFolder)) {
+		foreach ($item in (Get-ChildItem $FTPLocalFolder)) {
 			"Uploading $item..."
 			$uri = New-Object System.Uri($FTPServer + $item.Name)
 			$webclient.UploadFile($uri, $item.FullName)
 		}
 
-		write-host "Done" -foregroundcolor green
-		write-host ""
-	} Catch {
+		Write-Host "Done" -ForegroundColor green
+		Write-Host ""
+	} catch {
 		if ($errorlog -match "yes") {
-			$error[0] | add-content "$installpath\ErrorLog.txt"
+			$error[0] | Add-Content "$installpath\ErrorLog.txt"
 		}
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Error" -foregroundcolor red
-		write-host ""
+		Write-Host "Error" -ForegroundColor red
+		Write-Host ""
 	}
 }
 
 # Aufr�umen
 #--------------------------------------------------------------------------------------
 if ($CleanTMPFolder -match "yes") {
-	write-host ""
-	write-host "------------------------------------------------------------------------------------------"
-	write-host " Cleaning up temp. Directory:" -nonewline
+	Write-Host ""
+	Write-Host "------------------------------------------------------------------------------------------"
+	Write-Host " Cleaning up temp. Directory:" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
 	try {
-		$delTMPdir = remove-item $tmpdir -recurse -force
+		$delTMPdir = Remove-Item $tmpdir -Recurse -Force
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Done" -foregroundcolor green
-		write-host ""
-	} Catch {
+		Write-Host "Done" -ForegroundColor green
+		Write-Host ""
+	} catch {
 		if ($errorlog -match "yes") {
-			$error[0] | add-content "$installpath\ErrorLog.txt"
+			$error[0] | Add-Content "$installpath\ErrorLog.txt"
 		}
 		$host.UI.RawUI.CursorPosition = $origpos
-		write-host "Error" -foregroundcolor red
-		write-host ""
+		Write-Host "Error" -ForegroundColor red
+		Write-Host ""
 	}
 }
 
@@ -526,8 +526,8 @@ if ($CleanTMPFolder -match "yes") {
 #--------------------------------------------------------------------------------------
 
 if ($errorlog -match "yes") {
-	$logtime = get-date
-	"-End--- $logtime ----------------------------------------------------------------------------------" | add-content "$installpath\ErrorLog.txt"
+	$logtime = Get-Date
+	"-End--- $logtime ----------------------------------------------------------------------------------" | Add-Content "$installpath\ErrorLog.txt"
 }
 
 $host.ui.RawUI.WindowTitle = $otitle

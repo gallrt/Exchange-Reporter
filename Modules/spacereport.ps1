@@ -3,10 +3,10 @@ $spacereport = Generate-ReportHeader "spacereport.png" "$l_space_header"
 $exsrvcount = 1
 foreach ($exserver in $exservers) {
 	$exvolcount = 1
-	$computername = $exserver.name
+	$computername = $exserver.Name
 	$cells = @("$l_space_drive", "$l_space_name", "$l_space_size", "$l_space_free")
 	$spacereport += Generate-HTMLTable "$computername $l_space_header" $cells
-	$volumes = Get-WmiObject win32_volume -computername $computername | where { $_.Drivetype -match "3" -and $_.SystemVolume -match "False" -and $_.capacity -ne 314568704 -and $_.Label -notmatch "Wiederherstellung" -and $_.Label -notmatch "Restore" } | sort caption
+	$volumes = Get-WmiObject Win32_Volume -ComputerName $computername | Where-Object { $_.DriveType -match "3" -and $_.SystemVolume -match "False" -and $_.Capacity -ne 314568704 -and $_.Label -notmatch "Wiederherstellung" -and $_.Label -notmatch "Restore" } | Sort-Object Caption
 	foreach ($volume in $volumes) {
 		$filename = "$exsrvcount" + "_" + "$exvolcount" + ".png"
 		$volsize = [long]($volume.Capacity / 1GB)
@@ -19,16 +19,15 @@ foreach ($exserver in $exservers) {
 		}
 		[long]$volused = $volsize - $volfree
 		$volname = $volume.Label
-		$volid = $volume.name
+		$volid = $volume.Name
 
 		$chartdata = @{$l_space_free = $volfree; $l_space_used = $volused }
-		new-piechart "150" "150" "$volname $volid" $chartdata "$tmpdir\$filename"
+		New-PieChart "150" "150" "$volname $volid" $chartdata "$tmpdir\$filename"
 
 		$cells = @($volid, $volname, $volsizestring, $volfreestring)
 		$spacereport += New-HTMLTableLine $cells
 
-	 $exvolcount = $exvolcount + 1
-
+		$exvolcount = $exvolcount + 1
 	}
 	$spacereport += End-HTMLTable
 	$spacereport += Include-HTMLInlinePictures "$tmpdir\$exsrvcount*.png"
@@ -36,18 +35,19 @@ foreach ($exserver in $exservers) {
 	$exsrvcount = $exsrvcount + 1
 }
 
+
+
 #Domain Controller
 
 $dcsrvcount = 1
-
-
 foreach ($domaincontroller in $domaincontrollers) {
-	if ($exserver.name -eq $domaincontroller.name) { Continue }
+	if ($exserver.Name -eq $domaincontroller.Name) { continue }
+
 	$dcvolcount = 1
-	$computername = $domaincontroller.name
+	$computername = $domaincontroller.Name
 	$cells = @("$l_space_drive", "$l_space_name", "$l_space_size", "$l_space_free")
 	$spacereport += Generate-HTMLTable "$computername $l_space_header" $cells
-	$volumes = Get-WmiObject win32_volume -computername $computername | where { $_.Drivetype -match "3" -and $_.SystemVolume -match "False" -and $_.capacity -ne 314568704 -and $_.Label -notmatch "Wiederherstellung" -and $_.Label -notmatch "Restore" } | sort caption
+	$volumes = Get-WmiObject Win32_Volume -ComputerName $computername | Where-Object { $_.DriveType -match "3" -and $_.SystemVolume -match "False" -and $_.Capacity -ne 314568704 -and $_.Label -notmatch "Wiederherstellung" -and $_.Label -notmatch "Restore" } | Sort-Object Caption
 	foreach ($volume in $volumes) {
 		$filename = "dc" + "$dcsrvcount" + "_" + "$dcvolcount" + ".png"
 		$volsize = [long]($volume.Capacity / 1073741824)
@@ -59,11 +59,11 @@ foreach ($domaincontroller in $domaincontrollers) {
 			$volfreestring = "<font color=`"#CD0000`">$volfree $l_space_GB</font>"
 		}
 		[long]$volused = $volsize - $volfree
-		$volid = $volume.name
-		$volname = $volume.label
+		$volid = $volume.Name
+		$volname = $volume.Label
 		$chartdata = @{$l_space_free = $volfree; $l_space_used = $volused }
 
-		new-piechart "150" "150" "$volname $volid" $chartdata "$tmpdir\$filename"
+		New-PieChart "150" "150" "$volname $volid" $chartdata "$tmpdir\$filename"
 
 		$cells = @($volid, $volname, $volsizestring, $volfreestring)
 		$spacereport += New-HTMLTableLine $cells
@@ -76,6 +76,6 @@ foreach ($domaincontroller in $domaincontrollers) {
 	$dcsrvcount = $dcsrvcount + 1
 }
 
-$spacereport | set-content "$tmpdir\spacereport.html"
-$spacereport | add-content "$tmpdir\report.html"
+$spacereport | Set-Content "$tmpdir\spacereport.html"
+$spacereport | Add-Content "$tmpdir\report.html"
 

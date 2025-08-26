@@ -3,58 +3,62 @@ $mailreport = Generate-ReportHeader "mailreport.png" "$l_mail_header"
 $cells = @("$l_mail_sendcount", "$l_mail_reccount", "$l_mail_volsend", "$l_mail_volrec")
 $mailreport += Generate-HTMLTable "$l_mail_header2 $ReportInterval $l_mail_days" $cells
 
-$mailexclude = ($excludelist | where { $_.setting -match "mailreport" }).value
+$mailexclude = ($excludelist | Where-Object { $_.Setting -match "mailreport" }).Value
 if ($mailexclude) {
 	[array]$mailexclude = $mailexclude.split(",")
 }
 
 if ($emsversion -match "2016" -or $emsversion -match "2019") {
 	$transportservers = Get-TransportService
-	$SendMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -end $End -EventId Send -ea 0 -resultsize unlimited | where { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.source -match "SMTP" } | select sender, Recipients, timestamp, totalbytes, clienthostname
-	$ReceivedMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -end $End -EventId Receive -ea 0 -resultsize unlimited | where { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.source -match "SMTP" } | select sender, Recipients, timestamp, totalbytes, serverhostname
+	$SendMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -End $End -EventId Send -ea 0 -ResultSize Unlimited | Where-Object { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.Source -match "SMTP" } | Select-Object Sender, Recipients, Timestamp, TotalBytes, ClientHostname
+	$ReceivedMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -End $End -EventId Receive -ea 0 -ResultSize Unlimited | Where-Object { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.Source -match "SMTP" } | Select-Object Sender, Recipients, Timestamp, TotalBytes, ServerHostname
 }
 
 if ($emsversion -match "2013") {
 	$transportservers = Get-TransportService
-	$SendMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -end $End -EventId Send -ea 0 -resultsize unlimited | where { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.source -match "SMTP" } | select sender, Recipients, timestamp, totalbytes, clienthostname
-	$ReceivedMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -end $End -EventId Receive -ea 0 -resultsize unlimited | where { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.source -match "SMTP" } | select sender, Recipients, timestamp, totalbytes, serverhostname
+	$SendMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -End $End -EventId Send -ea 0 -ResultSize Unlimited | Where-Object { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.Source -match "SMTP" } | Select-Object Sender, Recipients, Timestamp, TotalBytes, ClientHostname
+	$ReceivedMails = Get-TransportService | Get-MessageTrackingLog -Start $Start -End $End -EventId Receive -ea 0 -ResultSize Unlimited | Where-Object { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.Source -match "SMTP" } | Select-Object Sender, Recipients, Timestamp, TotalBytes, ServerHostname
 }
 
 if ($emsversion -match "2010") {
 	$transportservers = Get-TransportServer
-	$SendMails = Get-TransportServer | Get-MessageTrackingLog -Start $Start -end $End -EventId Send -ea 0 -resultsize unlimited | where { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.source -match "SMTP" } | select sender, Recipients, timestamp, totalbytes, clienthostname
-	$ReceivedMails = Get-TransportServer | Get-MessageTrackingLog -Start $Start -end $End -EventId Receive -ea 0 -resultsize unlimited | where { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.source -match "SMTP" } | select sender, Recipients, timestamp, totalbytes, serverhostname
+	$SendMails = Get-TransportServer | Get-MessageTrackingLog -Start $Start -End $End -EventId Send -ea 0 -ResultSize Unlimited | Where-Object { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.Source -match "SMTP" } | Select-Object Sender, Recipients, Timestamp, TotalBytes, ClientHostname
+	$ReceivedMails = Get-TransportServer | Get-MessageTrackingLog -Start $Start -End $End -EventId Receive -ea 0 -ResultSize Unlimited | Where-Object { $_.Recipients -notmatch "HealthMailbox" -and $_.Sender -notmatch "MicrosoftExchange" -and $_.Source -match "SMTP" } | Select-Object Sender, Recipients, Timestamp, TotalBytes, ServerHostname
 }
 
 if ($mailexclude) {
-	foreach ($entry in $mailexclude) { $SendMails = $SendMails | where { $_.sender -notmatch $entry -and $_.recipients -notmatch $entry } }
-	foreach ($entry in $mailexclude) { $ReceivedMails = $ReceivedMails | where { $_.sender -notmatch $entry -and $_.recipients -notmatch $entry } }
+	foreach ($entry in $mailexclude) {
+		$SendMails = $SendMails | Where-Object { $_.Sender -notmatch $entry -and $_.Recipients -notmatch $entry }
+	}
+	foreach ($entry in $mailexclude) {
+		$ReceivedMails = $ReceivedMails | Where-Object { $_.Sender -notmatch $entry -and $_.Recipients -notmatch $entry }
+	}
 }
 
 #Total
 
-$totalsendmail = $sendmails | measure-object Totalbytes -sum
-$totalreceivedmail = $receivedmails | measure-object Totalbytes -sum
+$totalsendmail = $sendmails | Measure-Object TotalBytes -Sum
+$totalreceivedmail = $receivedmails | Measure-Object TotalBytes -Sum
 
-$totalsendvol = $totalsendmail.sum
-$totalreceivedvol = $totalreceivedmail.sum
+$totalsendvol = $totalsendmail.Sum
+$totalreceivedvol = $totalreceivedmail.Sum
 $totalsendvol = $totalsendvol / 1024 / 1024
 $totalreceivedvol = $totalreceivedvol / 1024 / 1024
 $totalsendvol = [System.Math]::Round($totalsendvol , 2)
 $totalreceivedvol = [System.Math]::Round($totalreceivedvol , 2)
 
-$totalsendcount = $totalsendmail.count
-$totalreceivedcount = $totalreceivedmail.count
+$totalsendcount = $totalsendmail.Count
+$totalreceivedcount = $totalreceivedmail.Count
 
 $totalmail = @{$l_mail_send = $totalsendcount }
 $totalmail += @{$l_mail_received = $totalreceivedcount }
 
-new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_count" $totalmail "$tmpdir\totalmailcount.png"
+New-CylinderChart 500 400 "$l_mail_overallcount" Mails "$l_mail_count" $totalmail "$tmpdir\totalmailcount.png"
 
 $totalmail = @{$l_mail_send = $totalsendvol }
 $totalmail += @{$l_mail_received = $totalreceivedvol }
 
-new-cylinderchart 500 400 "$l_mail_overallvolume" Mails "$l_mail_size" $totalmail "$tmpdir\totalmailvol.png"
+New-CylinderChart 500 400 "$l_mail_overallvolume" Mails "$l_mail_size" $totalmail "$tmpdir\totalmailvol.png"
 
 $cells = @("$totalsendcount", "$totalreceivedcount", "$totalsendvol", "$totalreceivedvol")
 $mailreport += New-HTMLTableLine $cells
@@ -68,16 +72,16 @@ if ($transportservers.count -gt 1) {
 
 	$perserverstats = @()
 	foreach ($transportserver in $transportservers) {
-		$tpsname = $transportserver.name
-		$tpssend = $sendmails | where { $_.Clienthostname -match "$tpsname" } | measure-object Totalbytes -sum
-		$tpsreceive = $ReceivedMails | where { $_.serverhostname -match "$tpsname" } | measure-object Totalbytes -sum
-		$tpssendcount = $tpssend.count
-		$tpsreceivecount = $tpsreceive.count
+		$tpsname = $transportserver.Name
+		$tpssend = $sendmails | Where-Object { $_.ClientHostname -match "$tpsname" } | Measure-Object TotalBytes -Sum
+		$tpsreceive = $ReceivedMails | Where-Object { $_.ServerHostname -match "$tpsname" } | Measure-Object TotalBytes -Sum
+		$tpssendcount = $tpssend.Count
+		$tpsreceivecount = $tpsreceive.Count
 
-		$tpssendvol = $tpssend.sum
+		$tpssendvol = $tpssend.Sum
 		$tpssendvol = $tpssendvol / 1024 / 1024
 		$tpssendvol = [System.Math]::Round($tpssendvol , 2)
-		$tpsreceivevol = $tpsreceive.sum
+		$tpsreceivevol = $tpsreceive.Sum
 		$tpsreceivevol = $tpsreceivevol / 1024 / 1024
 		$tpsreceivevol = [System.Math]::Round($tpsreceivevol , 2)
 
@@ -88,16 +92,16 @@ if ($transportservers.count -gt 1) {
 		$cells = @("$tpsname", "$tpstotalcount", "$tpstotalvol", "$tpssendcount", "$tpsreceivecount", "$tpssendvol", "$tpsreceivevol")
 		$mailreport += New-HTMLTableLine $cells
 
-		$perserverstats += new-object PSObject -property @{Name = "$tpsname"; TotalCount = $tpstotalcount; SendCount = $tpssendcount; ReceiveCount = $tpsreceivecount; ToltalVolume = $tpstotalvol; SendVolume = $tpssendvol; Receivevolume = $tpsreceivevol }
+		$perserverstats += New-Object PSObject -Property @{Name = "$tpsname"; TotalCount = $tpstotalcount; SendCount = $tpssendcount; ReceiveCount = $tpsreceivecount; ToltalVolume = $tpstotalvol; SendVolume = $tpssendvol; ReceiveVolume = $tpsreceivevol }
 	}
 	$mailreport += End-HTMLTable
 
 	foreach ($tpserver in $perserverstats) {
-		$tpsname = $tpserver.name
+		$tpsname = $tpserver.Name
 		$tpstotalvol = $tpserver.ToltalVolume
 		$tpstotalcount = $tpserver.TotalCount
 		$tpssendvol = $tpserver.SendVolume
-		$tpsreceivedvol = $tpserver.Receivevolume
+		$tpsreceivedvol = $tpserver.ReceiveVolume
 		$tpssendcount = $tpserver.SendCount
 		$tpsreceivedcount = $tpserver.ReceiveCount
 
@@ -109,15 +113,12 @@ if ($transportservers.count -gt 1) {
 
 		$tpsrsvoldata += [ordered]@{"$tpsname $l_mail_send" = $tpssendvol }
 		#$tpsrsvoldata += @{"$tpsname $l_mail_received"=$tpsreceivedvol}
-
 	}
 
 	foreach ($tpserver in $perserverstats) {
-		$tpsname = $tpserver.name
-		$tpsreceivedvol = $tpserver.Receivevolume
+		$tpsname = $tpserver.Name
+		$tpsreceivedvol = $tpserver.ReceiveVolume
 		$tpsreceivedcount = $tpserver.ReceiveCount
-
-
 
 		#$tpsrscountdata += @{"$tpsname $l_mail_send"=$tpssendcount}
 		$tpsrscountdata += [ordered]@{"$tpsname $l_mail_received" = $tpsreceivedcount }
@@ -126,14 +127,14 @@ if ($transportservers.count -gt 1) {
 		$tpsrsvoldata += [ordered]@{"$tpsname $l_mail_received" = $tpsreceivedvol }
 	}
 
-	new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_size $l_mail_overall" $tpsvoldata "$tmpdir\pertpsvol.png"
-	new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_count $l_mail_overall" $tpscountdata "$tmpdir\pertpscount.png"
-	new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_size" $tpsrsvoldata "$tmpdir\pertpsvolrs.png"
-	new-cylinderchart 500 400 "$l_mail_overallcount" Mails "$l_mail_coun" $tpsrscountdata "$tmpdir\pertpscountrs.png"
+	New-CylinderChart 500 400 "$l_mail_overallcount" Mails "$l_mail_size $l_mail_overall" $tpsvoldata "$tmpdir\pertpsvol.png"
+	New-CylinderChart 500 400 "$l_mail_overallcount" Mails "$l_mail_count $l_mail_overall" $tpscountdata "$tmpdir\pertpscount.png"
+	New-CylinderChart 500 400 "$l_mail_overallcount" Mails "$l_mail_size" $tpsrsvoldata "$tmpdir\pertpsvolrs.png"
+	New-CylinderChart 500 400 "$l_mail_overallcount" Mails "$l_mail_coun" $tpsrscountdata "$tmpdir\pertpscountrs.png"
 
 	$mailreport += Include-HTMLInlinePictures "$tmpdir\pertps*.png"
 }
-$total += new-object PSObject -property @{Name = "$name"; Volume = $volume }
+$total += New-Object PSObject -Property @{Name = "$name"; Volume = $volume }
 
 
 #days
@@ -147,23 +148,23 @@ do {
 	$daystart = (Get-Date -Hour 00 -Minute 00 -Second 00).AddDays(-$daycounter)
 	$dayend = (Get-Date -Hour 00 -Minute 00 -Second 00).AddDays(-$dayendcounter)
 
-	$DayReceivedMails = $ReceivedMails | where { $_.timestamp -ge $daystart -and $_.timestamp -le $dayend }
-	$DaySendMails = $sendmails | where { $_.timestamp -ge $daystart -and $_.timestamp -le $dayend }
+	$DayReceivedMails = $ReceivedMails | Where-Object { $_.Timestamp -ge $daystart -and $_.Timestamp -le $dayend }
+	$DaySendMails = $sendmails | Where-Object { $_.Timestamp -ge $daystart -and $_.Timestamp -le $dayend }
 
-	$daytotalsendmail = $daysendmails | measure-object Totalbytes -sum
-	$daytotalreceivedmail = $dayreceivedmails | measure-object Totalbytes -sum
+	$daytotalsendmail = $daysendmails | Measure-Object TotalBytes -Sum
+	$daytotalreceivedmail = $dayreceivedmails | Measure-Object TotalBytes -Sum
 
-	$daytotalsendvol = $daytotalsendmail.sum
-	$daytotalreceivedvol = $daytotalreceivedmail.sum
+	$daytotalsendvol = $daytotalsendmail.Sum
+	$daytotalreceivedvol = $daytotalreceivedmail.Sum
 	$daytotalsendvol = $daytotalsendvol / 1024 / 1024
 	$daytotalreceivedvol = $daytotalreceivedvol / 1024 / 1024
 	$daytotalsendvol = [System.Math]::Round($daytotalsendvol , 2)
 	$daytotalreceivedvol = [System.Math]::Round($daytotalreceivedvol , 2)
 
-	$daytotalsendcount = $daytotalsendmail.count
-	$daytotalreceivedcount = $daytotalreceivedmail.count
+	$daytotalsendcount = $daytotalsendmail.Count
+	$daytotalreceivedcount = $daytotalreceivedmail.Count
 
-	$day = $daystart | get-date -Format "dd.MM.yy"
+	$day = $daystart | Get-Date -Format "dd.MM.yy"
 
 	$daystotalmailvol += [ordered]@{$day = $daytotalreceivedvol }
 	$daystotalmailcount += [ordered]@{$day = $daytotalreceivedcount }
@@ -174,26 +175,26 @@ do {
 	$daycounter++
 } while ($daycounter -le $reportinterval)
 
-new-cylinderchart 500 400 "$l_mail_daycount" Mails "$l_mail_count" $daystotalmailcount "$tmpdir\dailymailcount.png"
-new-cylinderchart 500 400 "$l_mail_daysize" Mails "$l_mail_size" $daystotalmailvol "$tmpdir\dailymailvol.png"
+New-CylinderChart 500 400 "$l_mail_daycount" Mails "$l_mail_count" $daystotalmailcount "$tmpdir\dailymailcount.png"
+New-CylinderChart 500 400 "$l_mail_daysize" Mails "$l_mail_size" $daystotalmailvol "$tmpdir\dailymailvol.png"
 
 $mailreport += End-HTMLTable
 $mailreport += Include-HTMLInlinePictures "$tmpdir\dailymail*.png"
 
-$sendstat = $SendMails | select sender, totalbytes
-$receivedstat = $receivedMails | select totalbytes, Recipients
+$sendstat = $SendMails | Select-Object Sender, TotalBytes
+$receivedstat = $receivedMails | Select-Object TotalBytes, Recipients
 
-$sendmails = $sendmails.sender
+$sendmails = $sendmails.Sender
 $ReceivedMails = $ReceivedMails.Recipients
 
-$topsenders = $sendmails | Group-Object �noelement | Sort-Object Count -descending | Select-Object -first $DisplayTop
-$toprecipients = $ReceivedMails | Group-Object �noelement | Sort-Object Count -descending | Select-Object -first $DisplayTop
+$topsenders = $sendmails | Group-Object �noelement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
+$toprecipients = $ReceivedMails | Group-Object �noelement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
 
 $cells = @("$l_mail_sender", "$l_mail_count")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_sender ($l_mail_count)" $cells
 foreach ($topsender in $topsenders) {
-	$tsname = $topsender.name
-	$tscount = $topsender.count
+	$tsname = $topsender.Name
+	$tscount = $topsender.Count
 
 	$cells = @("$tsname", "$tscount")
 	$mailreport += New-HTMLTableLine $cells
@@ -203,8 +204,8 @@ $mailreport += End-HTMLTable
 $cells = @("$l_mail_recipient", "$l_mail_count")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_recipient ($l_mail_count)" $cells
 foreach ($toprecipient in $toprecipients) {
-	$trname = $toprecipient.name
-	$trcount = $toprecipient.count
+	$trname = $toprecipient.Name
+	$trcount = $toprecipient.Count
 
 	$cells = @("$trname", "$trcount")
 	$mailreport += New-HTMLTableLine $cells
@@ -216,18 +217,18 @@ $mailreport += End-HTMLTable
 $cells = @("$l_mail_sender", "$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_sender ($l_mail_size)" $cells
 
-$sendstatgroup = $sendstat | group sender
+$sendstatgroup = $sendstat | Group-Object Sender
 $total = @()
 foreach ($group in $sendstatgroup) {
-	$name = ($group.Group | select -first 1).sender
-	$volume = ($group.Group | measure totalbytes -Sum).Sum
-	$total += new-object PSObject -property @{Name = "$name"; Volume = $volume }
+	$name = ($group.Group | Select-Object -First 1).Sender
+	$volume = ($group.Group | Measure-Object totalbytes -Sum).Sum
+	$total += New-Object PSObject -Property @{Name = "$name"; Volume = $volume }
 }
-$toptensendersvol = $total | sort volume -descending | select -first $DisplayTop
+$toptensendersvol = $total | Sort-Object Volume -Descending | Select-Object -First $DisplayTop
 
 foreach ($topsender in $toptensendersvol) {
-	$tsname = $topsender.name
-	$tsvolume = $topsender.volume
+	$tsname = $topsender.Name
+	$tsvolume = $topsender.Volume
 	$tsvolume = $tsvolume / 1024 / 1024
 	$tsvolume = [System.Math]::Round($tsvolume , 2)
 	$cells = @("$tsname", "$tsvolume")
@@ -239,17 +240,17 @@ $mailreport += End-HTMLTable
 $cells = @("$l_mail_recipient", "$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_recipient ($l_mail_size)" $cells
 
-$receivedstatgroup = $receivedstat | group Recipients
+$receivedstatgroup = $receivedstat | Group-Object Recipients
 $total = @()
 foreach ($group in $receivedstatgroup) {
-	$name = ($group.Group | select -first 1).Recipients
-	$volume = ($group.Group | measure totalbytes -Sum).Sum
-	$total += new-object PSObject -property @{Name = "$name"; Volume = $volume }
+	$name = ($group.Group | Select-Object -First 1).Recipients
+	$volume = ($group.Group | Measure-Object totalbytes -Sum).Sum
+	$total += New-Object PSObject -Property @{Name = "$name"; Volume = $volume }
 }
-$toptenrecipientsvol = $total | sort volume -descending | select -first $DisplayTop
+$toptenrecipientsvol = $total | Sort-Object Volume -Descending | Select-Object -First $DisplayTop
 
 foreach ($toprecipient in $toptenrecipientsvol) {
-	$trname = $toprecipient.name
+	$trname = $toprecipient.Name
 	$trvolume = $toprecipient.Volume
 	$trvolume = $trvolume / 1024 / 1024
 	$trvolume = [System.Math]::Round($trvolume , 2)
@@ -262,7 +263,7 @@ $mailreport += End-HTMLTable
 
 #Durchschnitt
 try {
-	$usercount = (get-mailbox -resultsize unlimited | select alias).count
+	$usercount = (Get-Mailbox -ResultSize Unlimited | Select-Object Alias).Count
 
 	$dsend = $totalsendcount / $usercount
 	$dsend = [System.Math]::Round($dsend , 2)
@@ -301,5 +302,5 @@ try {
 	$mailreport += End-HTMLTable
 } catch {}
 
-$mailreport | set-content "$tmpdir\mailreport.html"
-$mailreport | add-content "$tmpdir\report.html"
+$mailreport | Set-Content "$tmpdir\mailreport.html"
+$mailreport | Add-Content "$tmpdir\report.html"

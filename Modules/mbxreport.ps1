@@ -5,31 +5,33 @@ $mbxreport = Generate-ReportHeader "mbxreport.png" "$l_mbx_header"
 $cells = @("$l_mbx_name", "$l_mbx_size", "$l_mbx_database")
 $mbxreport += Generate-HTMLTable "$l_mbx_topmbx ($DisplayTop)" $cells
 
-$mbxexclude = ($excludelist | where { $_.setting -match "mbxreport" }).value
+$mbxexclude = ($excludelist | Where-Object { $_.Setting -match "mbxreport" }).Value
 if ($mbxexclude) {
 	[array]$mbxexclude = $mbxexclude.split(",")
-	$mailboxes = get-mailbox -ResultSize unlimited | Get-MailboxStatistics -ea 0 -wa 0
-	foreach ($entry in $mbxexclude) { $mailboxes = $mailboxes | where { $_.displayname -notmatch $entry -or $_.alias -notmatch $entry } }
-	$mailboxes = $mailboxes | sort Totalitemsize -Descending | select -First $DisplayTop
+	$mailboxes = Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics -ea 0 -wa 0
+	foreach ($entry in $mbxexclude) {
+		$mailboxes = $mailboxes | Where-Object { $_.displayname -notmatch $entry -or $_.alias -notmatch $entry }
+	}
+	$mailboxes = $mailboxes | Sort-Object TotalItemSize -Descending | Select-Object -First $DisplayTop
 } else {
-	$mailboxes = get-mailbox -ResultSize unlimited | Get-MailboxStatistics -ea 0 -wa 0 | sort Totalitemsize -Descending | select -First $DisplayTop
+	$mailboxes = Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics -ea 0 -wa 0 | Sort-Object TotalItemSize -Descending | Select-Object -First $DisplayTop
 }
 
 foreach ($mailbox in $mailboxes) {
-	$mbxname = $mailbox.displayname
-	$mbxsize = $mailbox.totalitemsize
-	$db = $mailbox.database
+	$mbxname = $mailbox.DisplayName
+	$mbxsize = $mailbox.TotalItemSize
+	$db = $mailbox.Database
 
 	$cells = @("$mbxname", "$mbxsize", "$db")
 	$mbxreport += New-HTMLTableLine $cells
 }
 $mbxreport += End-HTMLTable
 
-$databases = get-mailboxdatabase
+$databases = Get-MailboxDatabase
 
 $mbxlimits = @()
 foreach ($database in $databases) {
-	$mbxdatabase = $database.name
+	$mbxdatabase = $database.Name
 	$dblimit = $database.ProhibitSendQuota
 	if ($dblimit -match "Unlimited") {
 		$dblimitstate = "Inactive"
@@ -38,10 +40,10 @@ foreach ($database in $databases) {
 		$dblimitstate = "Active"
 		$dblimitvalue = $dblimit.value.toMB()
 	}
-	$mailboxesindb = get-mailbox -database $database -ResultSize unlimited | sort
+	$mailboxesindb = Get-Mailbox -Database $database -ResultSize Unlimited | Sort-Object
 	foreach ($mailbox in $mailboxesindb) {
-		$mbxname = $mailbox.name
-		$mbxalias = $mailbox.alias
+		$mbxname = $mailbox.Name
+		$mbxalias = $mailbox.Alias
 		$mbxsize = (Get-MailboxStatistics $mailbox -wa 0).TotalItemSize
 		if (!$mbxsize) {
 			$mbxsize = 0
@@ -57,7 +59,7 @@ foreach ($database in $databases) {
 			$mbxlimitstate = "Active"
 			$mbxlimitvalue = $mbxlimit.Value.toMB()
 		}
-		[array]$mbxlimits += new-object PSObject -property @{Mailbox = "$mbxname"; DBlimit = "$dblimitstate"; DBLimitValue = "$dblimitvalue"; MBXLimit = "$mbxlimitstate"; MBXLimitValue = "$mbxlimitvalue"; MBXSize = "$mbxsize"; MBXAlias = "$mbxalias"; MBXUseDBDefault = "$mbxdefault"; Database = $mbxdatabase }
+		[array]$mbxlimits += New-Object PSObject -Property @{Mailbox = "$mbxname"; DBlimit = "$dblimitstate"; DBLimitValue = "$dblimitvalue"; MBXLimit = "$mbxlimitstate"; MBXLimitValue = "$mbxlimitvalue"; MBXSize = "$mbxsize"; MBXAlias = "$mbxalias"; MBXUseDBDefault = "$mbxdefault"; Database = $mbxdatabase }
 	}
 }
 
@@ -77,17 +79,17 @@ foreach ($mailbox in $mbxlimits) {
 		[double]$limitsize = $mailbox.dblimitvalue
 		$warningactive = $mbxsize -ge ($limitsize - $warninglevel)
 		$limittype = "Database"
-		[array]$reportlimits += new-object PSObject -property @{Mailbox = "$mbxname"; MBXAlias = "$mbxalias"; LimitType = "$Limittype"; LimitSize = "$limitsize"; MailboxSize = "$mbxsize"; WarningActive = "$warningactive"; Database = $mbxdatabase }
+		[array]$reportlimits += New-Object PSObject -Property @{Mailbox = "$mbxname"; MBXAlias = "$mbxalias"; LimitType = "$Limittype"; LimitSize = "$limitsize"; MailboxSize = "$mbxsize"; WarningActive = "$warningactive"; Database = $mbxdatabase }
 	}
 	#es gilt das Limit des Postfachs
 	if ($mbxusedbdefault -eq "False" -and $mbxlimit -eq "Active") {
 		[double]$limitsize = $mailbox.MBXLimitValue
 		$warningactive = $mbxsize -ge ($limitsize - $warninglevel)
 		$limittype = "Mailbox"
-		[array]$reportlimits += new-object PSObject -property @{Mailbox = "$mbxname"; MBXAlias = "$mbxalias"; LimitType = "$Limittype"; LimitSize = "$limitsize"; MailboxSize = "$mbxsize"; WarningActive = "$warningactive"; Database = $mbxdatabase }
+		[array]$reportlimits += New-Object PSObject -Property @{Mailbox = "$mbxname"; MBXAlias = "$mbxalias"; LimitType = "$Limittype"; LimitSize = "$limitsize"; MailboxSize = "$mbxsize"; WarningActive = "$warningactive"; Database = $mbxdatabase }
 	}
 }
-$reportlimits = $reportlimits | where { $_.WarningActive -match "True" }
+$reportlimits = $reportlimits | Where-Object { $_.WarningActive -match "True" }
 
 $cells = @("$l_mbx_name", "$l_mbx_size", "$l_mbx_limit", "$l_mbx_database", "$l_mbx_limittype")
 $mbxreport += Generate-HTMLTable "$l_mbx_mbxlimit" $cells
@@ -113,12 +115,12 @@ $mbxreport += End-HTMLTable
 $cells = @("$l_mbx_name", "$l_mbx_database", "$l_mbx_size", "$l_mbx_disconnected", "$l_mbx_id")
 $mbxreport += Generate-HTMLTable "$l_mbx_dismbx" $cells
 
-$dismbxs = get-mailboxdatabase | get-mailboxstatistics -wa 0 -ea 0 | Where { $_.DisconnectDate -ne $null } | select displayName, Identity, disconnectdate, database, totalitemsize
+$dismbxs = Get-MailboxDatabase | Get-MailboxStatistics -wa 0 -ea 0 | Where-Object { $_.DisconnectDate -ne $null } | Select-Object DisplayName, Identity, DisconnectDate, Database, TotalItemSize
 foreach ($dismbx in $dismbxs) {
-	$dismbxname = $dismbx.displayname
-	$disdb = $dismbx.database
-	$dissize = $dismbx.totalitemsize
-	[string]$disdate = $dismbx.disconnectdate | get-date -UFormat %d.%m.%Y
+	$dismbxname = $dismbx.DisplayName
+	$disdb = $dismbx.Database
+	$dissize = $dismbx.TotalItemSize
+	[string]$disdate = $dismbx.DisconnectDate | Get-Date -UFormat %d.%m.%Y
 	$disid = $dismbx.Identity
 
 	$cells = @("$dismbxname", "$disdb ", "$dissize", "$disdate", "$disid")
@@ -132,12 +134,12 @@ $mbxreport += End-HTMLTable
 $cells = @("$l_mbx_name", "$l_mbx_database", "$l_mbx_size", "$l_mbx_lastlogin", "$l_mbx_lastloginfrom")
 $mbxreport += Generate-HTMLTable "$l_mbx_maybeinactive" $cells
 
-$logonstats = get-mailbox -resultsize unlimited | get-mailboxstatistics -wa 0 -ea 0 | select displayname, database, totalitemsize, LastLoggedOnUserAccount, lastlogontime | where { $_.lastlogontime -lt ((get-date).adddays(-120)) } | sort lastlogontime
+$logonstats = Get-Mailbox -ResultSize Unlimited | Get-MailboxStatistics -wa 0 -ea 0 | Select-Object DisplayName, Database, TotalItemSize, LastLoggedOnUserAccount, LastLogonTime | Where-Object { $_.LastLogonTime -lt ((Get-Date).AddDays(-120)) } | Sort-Object LastLogonTime
 foreach ($entry in $logonstats) {
-	$ianame = $entry.displayname
-	$iadb = $entry.database
-	$iasize = $entry.totalitemsize
-	$iall = $entry.lastlogontime
+	$ianame = $entry.DisplayName
+	$iadb = $entry.Database
+	$iasize = $entry.TotalItemSize
+	$iall = $entry.LastLogonTime
 	$iauser = $entry.LastLoggedOnUserAccount
 	if (!$iall) {
 		$iastate = "$l_mbx_userdeactivated"
@@ -151,9 +153,8 @@ foreach ($entry in $logonstats) {
 
 	$cells = @("$ianame", "$iadb", "$iasize", "$iastate", "$iauser")
 	$mbxreport += New-HTMLTableLine $cells
-
 }
 $mbxreport += End-HTMLTable
 
-$mbxreport | set-content "$tmpdir\mbxreport.html"
-$mbxreport | add-content "$tmpdir\report.html"
+$mbxreport | Set-Content "$tmpdir\mbxreport.html"
+$mbxreport | Add-Content "$tmpdir\report.html"

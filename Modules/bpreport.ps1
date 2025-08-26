@@ -4,26 +4,26 @@ $bpreport = Generate-ReportHeader "bpreport.png" "$l_bp_header "
 $cells = @("$l_bp_srvname", "$l_bp_svcname", "$l_bp_errorcount")
 $bpreport += Generate-HTMLTable "$l_bp_t1header" $cells
 
-$start = (get-date).adddays(-$reportinterval)
+$start = (Get-Date).AddDays(-$reportinterval)
 
 
 foreach ($exserver in $exservers) {
-	$eventsrv = $exserver.name
-	$bperrors = Get-WinEvent -ComputerName $eventsrv -FilterHashtable @{Logname = "application"; StartTime = [datetime]$start; level = 2 } -ea 0 | where { $_.providername -match "exchange" -and $_.ID -match "1500*" } | select message, id, timecreated, providername
+	$eventsrv = $exserver.Name
+	$bperrors = Get-WinEvent -ComputerName $eventsrv -FilterHashtable @{Logname = "application"; StartTime = [datetime]$start; level = 2 } -ea 0 | Where-Object { $_.ProviderName -match "exchange" -and $_.ID -match "1500*" } | Select-Object Message, Id, TimeCreated, ProviderName
 
 	if ($bperrors) {
-		$bperrorgroups = $bperrors | group providername
+		$bperrorgroups = $bperrors | Group-Object ProviderName
 		foreach ($bperrorgroup in $bperrorgroups) {
-			$providername = $bperrorgroup.name
-			$errorcount = $bperrorgroup.count
+			$providername = $bperrorgroup.Name
+			$errorcount = $bperrorgroup.Count
 
 			$cells = @("$eventsrv", "$providername", "$errorcount")
 			$bpreport += New-HTMLTableLine $cells
 		}
 
-		$bperrormessages = $bperrors | select message -Unique
+		$bperrormessages = $bperrors | Select-Object Message -Unique
 		foreach ($bperrormessage in $bperrormessages) {
-			$message = $bperrormessage.message
+			$message = $bperrormessage.Message
 			$cells = @("$eventsrv", "$message")
 			$bpdetailreport += New-HTMLTableLine $cells
 		}
@@ -37,25 +37,25 @@ $cells = @("$l_bp_srvname", "$l_bp_svcname", "$l_bp_warncount")
 $bpreport += Generate-HTMLTable "$l_bp_t2header" $cells
 
 foreach ($exserver in $exservers) {
-	$eventsrv = $exserver.name
-	$bpwarnings = Get-WinEvent -ComputerName $eventsrv -FilterHashtable @{Logname = "application"; StartTime = [datetime]$start; level = 3 } -ea 0 | where { $_.providername -match "exchange" -and $_.ID -match "1500*" } | select message, id, timecreated, providername
+	$eventsrv = $exserver.Name
+	$bpwarnings = Get-WinEvent -ComputerName $eventsrv -FilterHashtable @{Logname = "application"; StartTime = [datetime]$start; level = 3 } -ea 0 | Where-Object { $_.ProviderName -match "exchange" -and $_.ID -match "1500*" } | Select-Object Message, Id, TimeCreated, ProviderName
 
 	if ($bpwarnings) {
-		$bpwarninggroups = $bpwarnings | group providername
+		$bpwarninggroups = $bpwarnings | Group-Object ProviderName
 		foreach ($bpwarninggroup in $bpwarninggroups) {
-			$providername = $bpwarninggroup.name
-			$warningcount = $bpwarninggroup.count
+			$providername = $bpwarninggroup.Name
+			$warningcount = $bpwarninggroup.Count
 
 			$cells = @("$eventsrv", "$providername", "$warningcount")
 			$bpreport += New-HTMLTableLine $cells
 		}
 
-		$bpwarningmessages = $bpwarnings | select message -Unique
+		$bpwarningmessages = $bpwarnings | Select-Object Message -Unique
 		foreach ($bpwarningmessage in $bpwarningmessages) {
-			$message = $bpwarningmessage.message
+			$message = $bpwarningmessage.Message
 			$cells = @("$eventsrv", "$message")
 			$bpdetailreport += New-HTMLTableLine $cells
-	 }
+		}
 	}
 }
 
@@ -69,5 +69,5 @@ $bpreport += $bpdetailreport
 
 $bpreport += End-HTMLTable
 
-$bpreport | set-content "$tmpdir\serverinfo.html"
-$bpreport | add-content "$tmpdir\report.html"
+$bpreport | Set-Content "$tmpdir\serverinfo.html"
+$bpreport | Add-Content "$tmpdir\report.html"
