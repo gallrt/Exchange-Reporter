@@ -1,4 +1,4 @@
-$l_space_header 				=	"Space Report"
+$l_space_header					=	"Space Report"
 $l_space_drive					=	"Drive"
 $l_space_name					=	"Name"
 $l_space_size					=	"Size"

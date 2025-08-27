@@ -1,4 +1,4 @@
-$l_redir_header 				=	"Mailboxes with Forwards or Redirects"
+$l_redir_header					=	"Mailboxes with Forwards or Redirects"
 $l_redir_mbx					=	"Mailbox"
 $l_redir_rulename				=	"Rulename"
 $l_redir_type					=	"Type"

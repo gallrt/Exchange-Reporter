@@ -1,4 +1,4 @@
-$l_bp_header 			=	"Exchange BackPressure Report"
+$l_bp_header			=	"Exchange BackPressure Report"
 $l_bp_srvname			=	"Servername"
 $l_bp_svcname			=	"Service"
 $l_bp_errorcount		=	"Error Count"

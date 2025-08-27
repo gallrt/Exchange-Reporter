@@ -1,4 +1,4 @@
-$l_pf_header 				=	"Public Folders"
+$l_pf_header				=	"Public Folders"
 $l_pf_db					=	"Database"
 $l_pf_server				=	"Server"
 $l_pf_size					=	"Size"

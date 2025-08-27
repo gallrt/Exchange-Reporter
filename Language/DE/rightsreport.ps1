@@ -1,4 +1,4 @@
-$l_perm_header 				=	"Berechtigungen"
+$l_perm_header				=	"Berechtigungen"
 $l_perm_mbx					=	"Mailbox"
 $l_perm_database			=	"Datenbank"
 $l_perm_user				=	"Benutzer"

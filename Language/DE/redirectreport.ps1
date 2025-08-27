@@ -1,4 +1,4 @@
-$l_redir_header 				=	"Postfächer mit Um- oder Weiterleitungen"
+$l_redir_header					=	"Postfächer mit Um- oder Weiterleitungen"
 $l_redir_mbx					=	"Postfach"
 $l_redir_rulename				=	"Name der Regel"
 $l_redir_type					=	"Typ"

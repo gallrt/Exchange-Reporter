@@ -1,4 +1,4 @@
-$l_space_header 				=	"Speicherplatz"
+$l_space_header					=	"Speicherplatz"
 $l_space_drive					=	"Laufwerk"
 $l_space_name					=	"Name"
 $l_space_size					=	"Größe"

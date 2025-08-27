@@ -1,4 +1,4 @@
-$l_pf_header 				=	"Öffentliche Ordner"
+$l_pf_header				=	"Öffentliche Ordner"
 $l_pf_db					=	"Datenbank"
 $l_pf_server				=	"Server"
 $l_pf_size					=	"Größe"
