@@ -20,7 +20,6 @@ param(
 
 $reporterversion = "3.13"
 
-# clear-host
 if ($ExchangeVersion) {
 	$EMSVersion = $ExchangeVersion
 }
@@ -67,7 +66,7 @@ if ($psversion -ge "4") {
 	Write-Host ""
 }
 
-#Laden der Funktionen aus "Include-Functions.ps1"
+# Laden der Funktionen aus "Include-Functions.ps1"
 #--------------------------------------------------------------------------------------
 
 Write-Host " Loading functions from Include-Functions.ps1:" -NoNewline
@@ -156,16 +155,15 @@ if ($errorlog -match "yes") {
 
 # Sprache anzeigen
 #--------------------------------------------------------------------------------------
+
 try {
 	Write-Host " Setting Report Language:" -NoNewline
 	$origpos = $host.UI.RawUI.CursorPosition
 	$origpos.X = 70
-
 } catch {
 	$host.UI.RawUI.CursorPosition = $origpos
 	Write-Host "Error" -ForegroundColor red
 	if ($errorlog -match "yes") {
-
 		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
@@ -174,8 +172,10 @@ try {
 $host.UI.RawUI.CursorPosition = $origpos
 Write-Host "$language" -ForegroundColor green
 
-#Lade Exchange Snapin
+
+# Lade Exchange Snapin
 #--------------------------------------------------------------------------------------
+
 Write-Host " Loading Exchange Management SnapIn:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
@@ -187,7 +187,6 @@ try {
 	$host.UI.RawUI.CursorPosition = $origpos
 	Write-Host "Error" -ForegroundColor red
 	if ($errorlog -match "yes") {
-
 		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
@@ -196,6 +195,7 @@ try {
 
 # Exchange Version ermitteln
 #--------------------------------------------------------------------------------------
+
 Write-Host " Checking Exchange Management Shell:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
@@ -228,14 +228,13 @@ if ($emsversion -notmatch "2010" -and $emsversion -notmatch "2013" -and $emsvers
 	$host.UI.RawUI.CursorPosition = $origpos
 	Write-Host "Error (Wrong EMS Version)" -ForegroundColor red
 	if ($errorlog -match "yes") {
-
 		"Wrong EMS Version" | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
 	Write-Host ""
 }
 
-#Tempor�res Verzeichnis erstellen
+# Temporäres Verzeichnis erstellen
 #--------------------------------------------------------------------------------------
 
 Write-Host " Generating temp. Directory:" -NoNewline
@@ -251,15 +250,15 @@ if ($tmpdir) {
 	$host.UI.RawUI.CursorPosition = $origpos
 	Write-Host "Error" -ForegroundColor red
 	if ($errorlog -match "yes") {
-
 		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	exit 0
 	Write-Host ""
 }
 
-#Lade Assembly
+# Lade .NET Assembly
 #--------------------------------------------------------------------------------------
+
 Write-Host " Loading .NET Assemblies:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
@@ -270,7 +269,6 @@ try {
 	Write-Host "Done" -ForegroundColor green
 } catch {
 	if ($errorlog -match "yes") {
-
 		$error[0] | Add-Content "$installpath\ErrorLog.txt"
 	}
 	$host.UI.RawUI.CursorPosition = $origpos
@@ -279,8 +277,9 @@ try {
 	Write-Host ""
 }
 
-#H�ufig genutzte Variablen
+# Häufig genutzte Variablen
 #--------------------------------------------------------------------------------------
+
 Write-Host " Loading global Variables:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
@@ -314,7 +313,7 @@ try {
 	$languagefilepath = "$installpath" + "\Language\" + "$language"
 	$Start = (Get-Date -Hour 00 -Minute 00 -Second 00).AddDays(-$ReportInterval)
 	$End = (Get-Date -Hour 00 -Minute 00 -Second 00)
-	$Today = Get-Date | convert-date
+	$Today = Get-Date | Convert-Date
 	Write-Host "Done" -ForegroundColor green
 	$EntireForrest = Set-ADServerSettings -ViewEntireForest $True
 } catch {
@@ -330,10 +329,11 @@ Write-Host ""
 Write-Host "------------------------------------------------------------------------------------------"
 Write-Host ""
 
-#MODULE
+
+# MODULE
 #--------------------------------------------------------------------------------------
 
-#HTML Datei vorbereiten
+# HTML Datei vorbereiten
 $htmlheader = New-HTMLHeader ExchangeReporter
 $htmlheader | Set-Content "$tmpdir\report.html"
 
@@ -356,7 +356,6 @@ foreach ($activemodule in $activemodules) {
 		Write-Host "Error" -ForegroundColor red
 		Write-Host ""
 	}
-
 }
 
 foreach ($3rdPartyactivemodule in $3rdPartyactivemodules) {
@@ -377,7 +376,6 @@ foreach ($3rdPartyactivemodule in $3rdPartyactivemodules) {
 		Write-Host "Error" -ForegroundColor red
 		Write-Host ""
 	}
-
 }
 
 # Report vorbereiten
@@ -438,6 +436,7 @@ if ($AddPDFFileToMail -match "yes") {
 
 # Report per Mail verschicken
 #--------------------------------------------------------------------------------------
+
 Write-Host ""
 Write-Host " Sending Report:" -NoNewline
 $origpos = $host.UI.RawUI.CursorPosition
@@ -498,8 +497,9 @@ if ($FTPUpload -match "yes") {
 	}
 }
 
-# Aufr�umen
+# Aufräumen
 #--------------------------------------------------------------------------------------
+
 if ($CleanTMPFolder -match "yes") {
 	Write-Host ""
 	Write-Host "------------------------------------------------------------------------------------------"
