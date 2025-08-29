@@ -1,42 +1,41 @@
 #--------------------------------------------------------------------------------------
 # Exchange Reporter Task
-# für Exchange Server 2010/2013/2016/2019
+# fÃ¼r Exchange Server 2010/2013/2016/2019
 # www.frankysweb.de
 #
-# erstellt geplanten Task für Exchange Reporter
-# by Frank Zöchling
+# erstellt geplanten Task fÃ¼r Exchange Reporter
+# by Frank ZÃ¶chling
 #
 #--------------------------------------------------------------------------------------
 
 Param([Parameter(Mandatory=$false)][string]$Installpath = $PSScriptRoot)
 
 clear-host
-write-host "
-------------------------------------------------------------------------------------------"
-write-host "
-   _____         _                             ______                      _            
-  |  ___|       | |                            | ___ \                    | |           
-  | |____  _____| |__   __ _ _ __   __ _  ___  | |_/ /___ _ __   ___  _ __| |_ ___ _ __ 
-  |  __\ \/ / __| '_ \ / _`` | '_ \ / _`` |/ _ \ |    // _ \ '_ \ / _ \| '__| __/ _ \ '__|
-  | |___>  < (__| | | | (_| | | | | (_| |  __/ | |\ \  __/ |_) | (_) | |  | ||  __/ |   
-  \____/_/\_\___|_| |_|\__,_|_| |_|\__, |\___| \_| \_\___| .__/ \___/|_|  \__ \___|_|   
-                                    __/ |                | |                            
-                                   |___/                 |_|                                                 
-" -foregroundcolor cyan
-write-host "
-                for Exchange Server 2010 / 2013 / 2016 / 2019 / Office365
-							 
-                                     www.FrankysWeb.de
+$ReporterVersion = "3.13.2"
 
-                                       Version: 3.12
+Write-Host "
+------------------------------------------------------------------------------------------"
+Write-Host "
+   _____         _                             ______                      _
+  |  ___|       | |                            | ___ \                    | |
+  | |____  _____| |__   __ _ _ __   __ _  ___  | |_/ /___ _ __   ___  _ __| |_ ___ _ __
+  |  __\ \/ / __| '_ \ / _`` | '_ \ / _`` |/ _ \ |    // _ \ '_ \ / _ \| '__| __/ _ \ '__|
+  | |___>  < (__| | | | (_| | | | | (_| |  __/ | |\ \  __/ |_) | (_) | |  | ||  __/ |
+  \____/_/\_\___|_| |_|\__,_|_| |_|\__, |\___| \_| \_\___| .__/ \___/|_|  \__ \___|_|
+                                    __/ |                | |
+                                   |___/                 |_|
+" -ForegroundColor cyan
+Write-Host "
+			for Exchange Server 2010 / 2013 / 2016 / 2019 / Office365
+
+                                    www.FrankysWeb.de
+
+                                    Version: $ReporterVersion
 
 ------------------------------------------------------------------------------------------
 "
 
-#Laden der Funktionen aus "Include-Functions.ps1"
-#--------------------------------------------------------------------------------------
-
-#Laden der Funktionen aus "Include-Functions.ps1"
+# Laden der Funktionen aus "Include-Functions.ps1"
 #--------------------------------------------------------------------------------------
 
 write-host " Loading functions from Include-Functions.ps1:" -nonewline
@@ -59,7 +58,7 @@ else
 
 # settings.ini einlesen
 #--------------------------------------------------------------------------------------
-try 
+try
 	{
 		write-host " Loading settings from settings.ini:" -nonewline
 		$origpos = $host.UI.RawUI.CursorPosition
@@ -94,11 +93,11 @@ $filepath = "$installpath" + "\New-ExchangeReport.ps1"
 
 if ($aktion -match 1)
 	{
-	
+
 		$reportsettingshash = $inifile["Reportsettings"]
 		$reportsettings = convert-hashtoobject $reportsettingshash
 		$reportinterval = ($reportsettings | Where-Object {$_.Setting -eq "Interval"}).Value
-		
+
 		if ($reportinterval -match 1)
 			{
 				write-host ""
@@ -109,40 +108,40 @@ if ($aktion -match 1)
 				$Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 				$startTime = "$zeitpunkt" | get-date -format s
-				
-				$taskService = New-Object -ComObject Schedule.Service 
-				$taskService.Connect() 
-  
-				$rootFolder = $taskService.GetFolder($NULL) 
-  
-				$taskDefinition = $taskService.NewTask(0) 
-  
-				$registrationInformation = $taskDefinition.RegistrationInfo 
-  
-				$registrationInformation = $taskDefinition.RegistrationInfo 
+
+				$taskService = New-Object -ComObject Schedule.Service
+				$taskService.Connect()
+
+				$rootFolder = $taskService.GetFolder($NULL)
+
+				$taskDefinition = $taskService.NewTask(0)
+
+				$registrationInformation = $taskDefinition.RegistrationInfo
+
+				$registrationInformation = $taskDefinition.RegistrationInfo
 				$registrationInformation.Description = "Exchange Reporter Task - www.FrankysWeb.de"
 				$registrationInformation.Author = $username
-  
-				$taskPrincipal = $taskDefinition.Principal 
-				$taskPrincipal.LogonType = 1 
+
+				$taskPrincipal = $taskDefinition.Principal
+				$taskPrincipal.LogonType = 1
 				$taskPrincipal.UserID = $username
-				$taskPrincipal.RunLevel = 0 
-  
-				$taskSettings = $taskDefinition.Settings 
+				$taskPrincipal.RunLevel = 0
+
+				$taskSettings = $taskDefinition.Settings
 				$taskSettings.StartWhenAvailable = $true
 				$taskSettings.RunOnlyIfNetworkAvailable = $true
-				$taskSettings.Priority = 7 
-  
-				$taskTriggers = $taskDefinition.Triggers 
-  
-				$executionTrigger = $taskTriggers.Create(2)  
+				$taskSettings.Priority = 7
+
+				$taskTriggers = $taskDefinition.Triggers
+
+				$executionTrigger = $taskTriggers.Create(2)
 				$executionTrigger.StartBoundary = $startTime
-  
-				$taskAction = $taskDefinition.Actions.Create(0) 
+
+				$taskAction = $taskDefinition.Actions.Create(0)
 				$taskAction.Path = "powershell.exe"
 				$taskAction.Arguments = "-Command `"&'$installpath\New-ExchangeReport.ps1' -installpath '$installpath'`""
 
-				$job = $rootFolder.RegisterTaskDefinition("Exchange-Reporter (www.FrankysWeb.de)" , $taskDefinition, 6, $username, $password, 1) 
+				$job = $rootFolder.RegisterTaskDefinition("Exchange-Reporter (www.FrankysWeb.de)" , $taskDefinition, 6, $username, $password, 1)
 			}
 		if ($reportinterval -match 7)
 			{
@@ -154,52 +153,52 @@ if ($aktion -match 1)
 				$Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
 
 				$startTime = "$zeitpunkt" | get-date -format s
-				
-				$taskService = New-Object -ComObject Schedule.Service 
-				$taskService.Connect() 
-				
-				$rootFolder = $taskService.GetFolder($NULL) 
-  
-				$taskDefinition = $taskService.NewTask(0) 
-  
-				$registrationInformation = $taskDefinition.RegistrationInfo 
+
+				$taskService = New-Object -ComObject Schedule.Service
+				$taskService.Connect()
+
+				$rootFolder = $taskService.GetFolder($NULL)
+
+				$taskDefinition = $taskService.NewTask(0)
+
+				$registrationInformation = $taskDefinition.RegistrationInfo
 				$registrationInformation.Description = "Exchange Reporter Task - www.FrankysWeb.de"
 				$registrationInformation.Author = $username
-  
-				$taskPrincipal = $taskDefinition.Principal 
-				$taskPrincipal.LogonType = 1 
+
+				$taskPrincipal = $taskDefinition.Principal
+				$taskPrincipal.LogonType = 1
 				$taskPrincipal.UserID = $username
-				$taskPrincipal.RunLevel = 0 
-  
-				$taskSettings = $taskDefinition.Settings 
+				$taskPrincipal.RunLevel = 0
+
+				$taskSettings = $taskDefinition.Settings
 				$taskSettings.StartWhenAvailable = $true
 				$taskSettings.RunOnlyIfNetworkAvailable = $true
-				$taskSettings.Priority = 7 
-  
-				$taskTriggers = $taskDefinition.Triggers 
-  
-				$executionTrigger = $taskTriggers.Create(3)   
+				$taskSettings.Priority = 7
+
+				$taskTriggers = $taskDefinition.Triggers
+
+				$executionTrigger = $taskTriggers.Create(3)
 				$executionTrigger.DaysOfWeek = 2
 				$executionTrigger.StartBoundary = $startTime
-  
-				$taskAction = $taskDefinition.Actions.Create(0) 
+
+				$taskAction = $taskDefinition.Actions.Create(0)
 				$taskAction.Path = "powershell.exe"
 				$taskAction.Arguments = "-Command `"&'$installpath\New-ExchangeReport.ps1' -installpath '$installpath'`""
 
-				$job = $rootFolder.RegisterTaskDefinition("Exchange-Reporter (www.FrankysWeb.de)" , $taskDefinition, 6, $username, $password, 1) 
-				
+				$job = $rootFolder.RegisterTaskDefinition("Exchange-Reporter (www.FrankysWeb.de)" , $taskDefinition, 6, $username, $password, 1)
+
 			}
-			
+
 		if ($reportinterval -notmatch 1 -and $reportinterval -notmatch 7)
 			{
 				write-host ""
 				write-host " Reportinterval (settings.ini) is not 1 (Daily) or" -foregroundcolor yellow
 				write-host " 7 (weekly), Could not create task, please do it manualy"  -foregroundcolor yellow
 				write-host ""
-				
-				
+
+
 			}
-		
+
 		if ($job)
 			{
 				write-host ""
@@ -207,7 +206,7 @@ if ($aktion -match 1)
 				write-host ""
 			}
 	}
-	
+
 if ($aktion -match 2)
 	{
 		$job = invoke-command {SCHTASKS /Delete /TN "Exchange-Reporter (www.FrankysWeb.de)" /F} -ea 0 | out-null

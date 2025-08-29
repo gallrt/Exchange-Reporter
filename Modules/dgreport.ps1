@@ -42,7 +42,6 @@ if ($unuseddls) {
 		$cells = @("$dgname", "$smtpaddress", "$hasmembers")
 		$dgreport += New-HTMLTableLine $cells
 	}
-
 } else {
 	$cells = @("$l_dg_nounuseddg")
 }

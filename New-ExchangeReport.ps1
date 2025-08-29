@@ -15,7 +15,7 @@ param(
 	[Parameter(Mandatory = $false)][string]$ConfigFile = "settings.ini"
 )
 
-#Konsole Header
+# Konsole Header
 #--------------------------------------------------------------------------------------
 
 $reporterversion = "3.13"
@@ -25,7 +25,7 @@ if ($ExchangeVersion) {
 	$EMSVersion = $ExchangeVersion
 }
 $otitle = $host.ui.RawUI.WindowTitle
-$host.ui.RawUI.WindowTitle = "Exchange Reporter $reporterversion - www.FrankysWeb.de"
+$host.ui.RawUI.WindowTitle = "Exchange Reporter $ReporterVersion - www.FrankysWeb.de"
 
 
 Write-Host "
@@ -41,15 +41,15 @@ Write-Host "
                                    |___/                 |_|
 " -ForegroundColor cyan
 Write-Host "
-			for Exchange Server 2010 / 2013 / 2016 / 2019
+           for Exchange Server 2010 / 2013 / 2016 / 2019 / Office365
 
                                      www.FrankysWeb.de
 
-                                       Version: $reporterversion
+           Version: $ReporterVersion
 
 ------------------------------------------------------------------------------------------
 "
-#Pr�fen ob PowerShell 4.0 vorhanden
+# Prüfen ob PowerShell 4.0 vorhanden
 #--------------------------------------------------------------------------------------
 
 Write-Host " Checking Powershell Version:" -NoNewline
@@ -58,7 +58,6 @@ $origpos.X = 70
 $psversion = (Get-Host).version.major
 
 if ($psversion -ge "4") {
-
 	$host.UI.RawUI.CursorPosition = $origpos
 	Write-Host "OK (PowerShell $psversion)" -ForegroundColor green
 } else {
@@ -122,7 +121,7 @@ $activemodules = $activemodules | Where-Object { $_.setting -notmatch "Comment" 
 $3rdPartyactivemodules = convert-hashtoobject $3rdPartyactivemoduleshash
 $3rdPartyactivemodules = $3rdPartyactivemodules | Where-Object { $_.setting -notmatch "Comment" -and $_.setting -notmatch ";" } | Sort-Object setting
 
-#Einstellungen:
+# Einstellungen:
 #--------------------------------------------------------------------------------------
 
 $ReportInterval = ($reportsettings | Where-Object { $_.Setting -eq "Interval" }).Value
@@ -149,6 +148,7 @@ $language = ($languagesettings | Where-Object { $_.Setting -eq "Language" }).Val
 
 # Errorlog schreiben
 #--------------------------------------------------------------------------------------
+
 if ($errorlog -match "yes") {
 	$logtime = Get-Date
 	"-Start-- $logtime ----------------------------------------------------------------------------------" | Add-Content "$installpath\ErrorLog.txt"

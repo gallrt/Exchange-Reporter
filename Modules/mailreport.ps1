@@ -187,14 +187,13 @@ New-CylinderChart 500 400 "$l_mail_daysize" Mails "$l_mail_size" $daystotalmailv
 $mailreport += End-HTMLTable
 $mailreport += Include-HTMLInlinePictures "$tmpdir\dailymail*.png"
 
-$sendstat = $SendMails | Select-Object Sender, TotalBytes
-$receivedstat = $receivedMails | Select-Object TotalBytes, Recipients
 
-$sendmails = $sendmails.Sender
-$ReceivedMails = $ReceivedMails.Recipients
+#--------------------------------------------------------------------------------------
+# Sender (by mail count)
 
-$topsenders = $sendmails | Group-Object -NoElement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
-$toprecipients = $ReceivedMails | Group-Object -NoElement | Sort-Object Count -Descending | Select-Object -First $DisplayTop
+$SendMailsSender = $sendmails.Sender
+$topsenders = $SendMailsSender | Group-Object -NoElement |
+		Sort-Object Count -Descending | Select-Object -First $DisplayTop
 
 $cells = @("$l_mail_sender", "$l_mail_count")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_sender ($l_mail_count)" $cells
@@ -206,6 +205,14 @@ foreach ($topsender in $topsenders) {
 	$mailreport += New-HTMLTableLine $cells
 }
 $mailreport += End-HTMLTable
+
+
+#--------------------------------------------------------------------------------------
+# Recipients  (by mail count)
+
+$ReceivedMailsRecipients = $ReceivedMails.Recipients 
+$toprecipients = $ReceivedMailsRecipients | Group-Object -NoElement |
+		Sort-Object Count -Descending | Select-Object -First $DisplayTop
 
 $cells = @("$l_mail_recipient", "$l_mail_count")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_recipient ($l_mail_count)" $cells
@@ -220,16 +227,16 @@ $mailreport += End-HTMLTable
 
 
 #--------------------------------------------------------------------------------------
-# Sender
+# Sender (by volume)
 
 $cells = @("$l_mail_sender", "$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_sender ($l_mail_size)" $cells
 
-$sendstatgroup = $sendstat | Group-Object Sender
+$sendstatgroup = $SendMails | Group-Object Sender
 $total = @()
 foreach ($group in $sendstatgroup) {
 	$name = ($group.Group | Select-Object -First 1).Sender
-	$volume = ($group.Group | Measure-Object totalbytes -Sum).Sum
+	$volume = ($group.Group | Measure-Object TotalBytes -Sum).Sum
 	$total += New-Object PSObject -Property @{Name = "$name"; Volume = $volume }
 }
 $toptensendersvol = $total | Sort-Object Volume -Descending | Select-Object -First $DisplayTop
@@ -246,16 +253,26 @@ $mailreport += End-HTMLTable
 
 
 #--------------------------------------------------------------------------------------
-# Recipients
+# Recipients (by volume)
 
 $cells = @("$l_mail_recipient", "$l_mail_sizemb")
 $mailreport += Generate-HTMLTable "Top $DisplayTop $l_mail_recipient ($l_mail_size)" $cells
 
-$receivedstatgroup = $receivedstat | Group-Object Recipients
+$receivedstat = @()
 $total = @()
+foreach ($receivedMail in $ReceivedMails) {
+	foreach ($MailRecipient in $receivedMail.Recipients) {
+		$receivedstat += New-Object PSObject -Property @{
+			Recipient = $MailRecipient;
+			TotalBytes = $receivedMail.TotalBytes;
+		}
+	}
+}
+$receivedstatgroup = $receivedstat | Group-Object Recipient
+
 foreach ($group in $receivedstatgroup) {
-	$name = ($group.Group | Select-Object -First 1).Recipients
-	$volume = ($group.Group | Measure-Object totalbytes -Sum).Sum
+	$name = ($group.Group | Select-Object -First 1).Recipient
+	$volume = ($group.Group | Measure-Object TotalBytes -Sum).Sum
 	$total += New-Object PSObject -Property @{Name = "$name"; Volume = $volume }
 }
 $toptenrecipientsvol = $total | Sort-Object Volume -Descending | Select-Object -First $DisplayTop

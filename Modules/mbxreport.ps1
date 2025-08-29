@@ -1,7 +1,7 @@
 #--------------------------------------------------------------------------------------
 # Abstand zum Limit in MB, ab dem ein Postfach in die Liste der
 # "Postfächer nahe am Sende-Limit" aufgenommen wird.
-$warninglevel = 200
+$warninglevel = 120
 
 $mbxreport = Generate-ReportHeader "mbxreport.png" "$l_mbx_header"
 
