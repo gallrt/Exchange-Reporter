@@ -22,11 +22,11 @@ function New-HTMLHeader ($title)
     <table align=`"center`" cellspacing=`"0`" style=`"width: 80%`">
      <td style=`"background-color: `#F8F8F8; color: `#585858;`">
 	 
-	 Exchange Report für $orgname<br>
+	 Exchange Report fÃ¼r $orgname<br>
 	 Datum: $today<br>
      erstellt von Exchange Reporter<br>
      Version: $reporterversion<br>
-		www.frankysweb.de
+		https://github.com/gallrt/Exchange-Reporter
 	 
 	 </tr></td>
    </table>
@@ -56,7 +56,7 @@ function New-HTMLHeader ($title)
 	 Date: $today<br>
      created with Exchange Reporter<br>
      Version: $reporterversion<br>
-		www.frankysweb.de
+		https://github.com/gallrt/Exchange-Reporter
 	 
 	 </tr></td>
    </table>
@@ -66,7 +66,7 @@ function New-HTMLHeader ($title)
    }
  }
 
-# Neue Tabelle inkl Überschrift
+# Neue Tabelle inkl Ãœberschrift
 function Generate-HTMLTable ($headline, $cells)
  {
   $HTMLTable = "
@@ -157,20 +157,8 @@ function Generate-ReportFooter ()
      <td style=`"background-color: `#F8F8F8; color: `#585858;`">
 	 
      erstellt von Exchange Reporter $reporterversion<br>
-	 Frank Zöchling www.FrankysWeb.de
+	 github.com/gallrt/Exchange-Reporter
 	
-	 </td>
-	 </tr>
-	 <tr>
-	 <td style=`"background-color: `#F8F8F8; color: `#585858;`">
-	 
-	 <center>
-	 
-	 <hr>
-	 Spenden Sie etwas für die Weiterentwicklung, wenn Ihnen Exchange Reporter gefällt:<br>
-	 <a href=`"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=frank%40frankysweb%2ede&lc=DE&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHostedGuest`">Spenden via Paypal</a>
-	 
-	 </center>
 	 </td>
 	 </tr>
    </table>
@@ -186,22 +174,11 @@ function Generate-ReportFooter ()
      <td style=`"background-color: `#F8F8F8; color: `#585858;`">
 	 
      created with Exchange Reporter $reporterversion<br>
-	 Frank Zoechling www.FrankysWeb.de
+	 github.com/gallrt/Exchange-Reporter
 	
 	 </td>
 	 </tr>
-	 <tr>
-	 <td style=`"background-color: `#F8F8F8; color: `#585858;`">
-	 
-	 <center>
-	 
-	 <hr>
-	 If you like Exchange Reporter, please donate:<br>
-	 <a href=`"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=frank%40frankysweb%2ede&lc=DE&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHostedGuest`">Donate with Paypal</a>
-	 
-	 </center>
-	 </td>
-	 </tr>
+
    </table>
    &nbsp;
    "#"

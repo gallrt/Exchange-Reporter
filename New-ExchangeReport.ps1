@@ -18,7 +18,7 @@ param(
 # Konsole Header
 #--------------------------------------------------------------------------------------
 
-$reporterversion = "3.13"
+$ReporterVersion = "3.13.2"
 
 if ($ExchangeVersion) {
 	$EMSVersion = $ExchangeVersion
@@ -42,7 +42,7 @@ Write-Host "
 Write-Host "
            for Exchange Server 2010 / 2013 / 2016 / 2019 / Office365
 
-                                     www.FrankysWeb.de
+           www.FrankysWeb.de
 
            Version: $ReporterVersion
 
@@ -139,7 +139,7 @@ if ($SMTPAuth -match "yes") {
 
 $Recipient = ($reportsettings | Where-Object { $_.Setting -eq "Recipient" }).Value
 [array]$Recipient = $Recipient.split(",")
-$Sender = ($reportsettings | Where-Object { $_.Setting -eq "Sender" }).Value
+$MailSender = ($reportsettings | Where-Object { $_.Setting -eq "Sender" }).Value
 $Mailserver = ($reportsettings | Where-Object { $_.Setting -eq "Mailserver" }).Value
 $Subject = ($reportsettings | Where-Object { $_.Setting -eq "Subject" }).Value
 [int]$DisplayTop = ($reportsettings | Where-Object { $_.Setting -eq "DisplayTop" }).Value
@@ -443,11 +443,11 @@ $origpos = $host.UI.RawUI.CursorPosition
 $origpos.X = 70
 try {
 	if ($SMTPAuth -match "yes") {
-		Send-MailMessage -Encoding UTF8 -From "Exchange Reporter - www.FrankysWeb.de <$sender>" -To "$Recipient"  -Subject "$subject" -SmtpServer $mailserver -BodyAsHtml -Body $mailbody -Attachments $files -Credential $smtpcreds
+		Send-MailMessage -Encoding UTF8 -From "Exchange Reporter <$MailSender>" -To "$Recipient" -Subject "$subject" -SmtpServer $mailserver -BodyAsHtml -Body $mailbody -Attachments $files -Credential $smtpcreds
 		$host.UI.RawUI.CursorPosition = $origpos
 		Write-Host "Done" -ForegroundColor green
 	} else {
-		Send-MailMessage -Encoding UTF8 -From "Exchange Reporter - www.FrankysWeb.de <$sender>" -To $Recipient  -Subject "$subject" -SmtpServer $mailserver -BodyAsHtml -Body $mailbody -Attachments $files
+		Send-MailMessage -Encoding UTF8 -From "Exchange Reporter <$MailSender>" -To "$Recipient" -Subject "$subject" -SmtpServer $mailserver -BodyAsHtml -Body $mailbody -Attachments $files
 		$host.UI.RawUI.CursorPosition = $origpos
 		Write-Host "Done" -ForegroundColor green
 		Write-Host ""
